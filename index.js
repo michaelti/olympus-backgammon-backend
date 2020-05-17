@@ -14,7 +14,6 @@ io.on('connection', (socket) => {
             // Send the room name back to the client
             socket.emit('event/joined-room', roomName);
         });
-
     });
 
     // Client event: join room
@@ -29,7 +28,6 @@ io.on('connection', (socket) => {
             // Send a failure event back to the client
             socket.emit('event/failed-join-room', roomName);
         }
-
     });
 
 
