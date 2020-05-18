@@ -2,9 +2,9 @@ const prompt = require('prompt-sync')();
 
 // Enum-like object
 const Player = Object.freeze({
-  black : {value: -1, name: "Black", code: "B"}, 
-  empty : {value: 0,  name: "Empty", code: "-"}, 
-  white : {value: 1,  name: "White", code: "W"}
+  empty : {value: 0, name: "Empty", code: "-"},
+  white : {value: 1, name: "White", code: "W"},
+  black : {value: 2, name: "Black", code: "B"},
 });
 
 let Pip = {
@@ -14,13 +14,14 @@ let Pip = {
 };
 
 let Board = {
-	turn: Player.black,
+	turn: Player.empty,
 	off1: 0, off2: 0,
 	bar1: 0, bar2: 0,
 	pips: new Array(25),
 
 	// Initialize the board for a game of plakoto
 	initPlakoto() {
+		this.turn = Player.black;	// Later, players will roll to see who goes first
 		for (i=0; i<=24; i++) {
 			this.pips[i] = Object.create(Pip);
 		}
@@ -48,26 +49,15 @@ let Board = {
 	},
 
 	// Is the move valid?
-	// turn: 	Who's turn is it <B or W>
 	// from: 	Move from pip # <eg. 1>
 	// to: 		Move to pip # <eg. 4>
 	// return: 	Returns a boolean
 	isValid(from, to) {
-		if (this.turn === Player.black) {
-			if (this.pips[from].top !== Player.black) {
-				return false;
-			}
-			if (this.pips[to].top === Player.white && this.pips[to].size > 1) {
-				return false;
-			}
+		if (this.pips[from].top !== this.turn) {
+			return false;
 		}
-		else if (this.turn === Player.white) {
-			if (this.pips[from].top !== Player.white) {
-				return false;
-			}
-			if (this.pips[to].top === Player.black && this.pips[to].size > 1) {
-				return false;
-			}
+		if (this.pips[to].top === this.otherPlayer() && this.pips[to].size > 1) {
+			return false;
 		}
 		return true;
 	},
@@ -89,32 +79,30 @@ let Board = {
 		}
 		this.pips[to].top = this.turn;
 		this.pips[to].size ++;
+	},
+
+	// Returns the player who's turn it ISN'T
+	otherPlayer() {
+		if (this.turn === Player.black) return Player.white;
+		if (this.turn === Player.white) return Player.black;
+		return Player.empty;
 	}
 };
 
-var board1 = Object.create(Board);
-board1.initPlakoto();
-board1.print();
+var board = Object.create(Board);
+board.initPlakoto();
+board.print();
 let from;
 let to;
 
 while (true) {
 	do {
-		from = prompt('Black move from: ');
-		  to = prompt('Black move to  : ');
+		from = prompt(`${board.turn.name} move from: `);
+		  to = prompt(`${board.turn.name} move to  : `);
 	} 
-	while (! board1.isValid(from, to));
+	while (! board.isValid(from, to));
 
-	board1.doMove(from, to);
-	board1.print();
-	board1.turn = Player.white;
-	do {
-		from = prompt('White move from: ');
-		  to = prompt('White move to  : ');
-	} 
-	while (! board1.isValid(from, to));
-
-	board1.doMove(from, to);
-	board1.print();
-	board1.turn = Player.black;
+	board.doMove(from, to);
+	board.print();
+	board.turn = board.otherPlayer();
 }
