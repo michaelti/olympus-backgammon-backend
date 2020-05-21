@@ -1,4 +1,5 @@
-const prompt = require('prompt-sync')();
+const prompt = require('prompt-sync')({sigint: true});
+const clone = require('ramda.clone');
 
 // Enum-like object
 const Player = Object.freeze({
@@ -13,12 +14,17 @@ function Pip(size = 0, owner = Player.empty) {
 	this.bot = owner;
 };
 
+function Submove(from, to){
+	this.from = from;
+	this.to = to;
+}
+
 let Board = {
 	turn: Player.empty,
 	off1: 0, off2: 0,
 	bar1: 0, bar2: 0,
 	pips: new Array(25),
-	diceValue: new Array(2),
+	dice: new Array(2),
 
 	// Initialize the board for a game of plakoto
 	initPlakoto() {
@@ -32,9 +38,9 @@ let Board = {
 	},
 
 	rollDice() {
-  		this.diceValue = [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1];
-  		if (this.diceValue[0] === this.diceValue[1]) {
-  			this.diceValue = this.diceValue.concat(this.diceValue);
+  		this.dice = [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1];
+  		if (this.dice[0] === this.dice[1]) {
+  			this.dice = this.dice.concat(this.dice);
   		}
 	},
 
@@ -56,23 +62,26 @@ let Board = {
 	},
 
 	// Is the move valid?
-	// from: 	Move from pip # <eg. 1>
-	// to: 		Move to pip # <eg. 4>
+	// 	from: 	Move from pip # <eg. 1>
+	// 	to: 	Move to pip # <eg. 4>
 	// return: 	Returns a boolean
 	isValid(from, to) {
+		if (from < 1 || from > 24 || to < 1 || to > 24){
+			return false;
+		}
 		if (this.pips[from].top !== this.turn) {
 			return false;
 		}
 		if (this.pips[to].top === this.otherPlayer() && this.pips[to].size > 1) {
 			return false;
 		}
-		if (! this.diceValue.includes( this.turn.direction * (to - from) ) ) {
+		if (! this.dice.includes( this.turn.direction * (to - from) ) ) {
 			return false;
 		}
 		return true;
 	},
 
-	doMove(from, to) {
+	doSubmove(from, to) {
 		// From pip
 		if (this.pips[from].size === 1) {
 			this.pips[from].top = Player.empty;
@@ -91,10 +100,10 @@ let Board = {
 		this.pips[to].size ++;
 
 		// Handle dice. NOTE: this will only work for 2 distinct values or 4 idencital values
-		if (this.diceValue[0] === Math.abs(from - to)) {
-			this.diceValue.shift();
+		if (this.dice[0] === Math.abs(from - to)) {
+			this.dice.shift();
 		} else {
-			this.diceValue.pop();
+			this.dice.pop();
 		}
 	},
 
@@ -103,22 +112,51 @@ let Board = {
 		if (this.turn === Player.black) return Player.white;
 		if (this.turn === Player.white) return Player.black;
 		return Player.empty;
+	},
+
+	// Returns 2D array
+	allPossibleMoves() {
+		if (this.dice.length === 0) return [];
+		let ret = new Array();
+		let uniqueDice = (this.dice[0] === this.dice[1]) ? [this.dice[0]] : this.dice;
+		for (const die of uniqueDice) {
+			for (let pipIndex=1; pipIndex<=24; pipIndex++) {
+				if (this.pips[pipIndex].top === this.turn) {
+					let currentMove = new Submove(pipIndex, this.turn.direction * die + Number(pipIndex));
+					if (this.isValid(currentMove.from, currentMove.to)) {
+						// deep copy game board using ramda
+						let newBoard = clone(this);
+						newBoard.doSubmove(currentMove.from, currentMove.to);
+						let nextMoves = newBoard.allPossibleMoves();
+						if (nextMoves.length){
+							for (const nextMove of nextMoves) {
+								ret.push([currentMove, ...nextMove]);
+							}
+						}
+						else {
+							ret.push([currentMove]);
+						}
+					}
+				}
+			}
+		}
+		return ret;
 	}
 };
 
-var board = Object.create(Board);
+let board = Object.create(Board);
 board.initPlakoto();
 board.print();
-let from;
-let to;
+let from, to;
 
 while (true) {
-	while (board.diceValue.length > 0) {
-		console.log("Your dice are: " + board.diceValue);
+	while (board.dice.length > 0) {
+		console.log("Your dice are: " + board.dice);
+		console.log(board.allPossibleMoves());
 		from = prompt(`${board.turn.name} move from: `);
 		to   = prompt(`${board.turn.name} move to  : `);
 		if (board.isValid(from, to)) {
-			board.doMove(from, to);
+			board.doSubmove(from, to);
 			board.print();
 		}
 	}
