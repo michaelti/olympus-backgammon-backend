@@ -39,9 +39,11 @@ const Board = () => ({
 
     rollDice() {
         this.dice = [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1];
+        /* Temporarily disable doubles
         if (this.dice[0] === this.dice[1]) {
             this.dice = this.dice.concat(this.dice);
         }
+        */
     },
 
     // Print an ASCII game board to console
@@ -145,11 +147,13 @@ const Board = () => ({
 
     getSubmove(from, to) {
         if (this.isValid(from, to)) {
-            this.doSubmove(from, to);             
-            this.turn = this.otherPlayer();
-            this.rollDice();
+            this.doSubmove(from, to);
         }
         return this;
+    },
+
+    isTurnValid() {
+        return true;
     }
 });
 
