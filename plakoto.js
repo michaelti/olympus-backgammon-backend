@@ -20,14 +20,14 @@ function Submove(from, to){
 };
 
 let Board = {
-    turn: Player.empty,
-    off1: 0, off2: 0,
-    bar1: 0, bar2: 0,
-    pips: new Array(25),
-    dice: new Array(2),
-
+    
     // Initialize the board for a game of plakoto
     initPlakoto() {
+        this.off1 = 0;
+        this.off2 = 0;
+        this.pips = new Array(25),
+        this.dice = new Array(2),
+
         this.turn = Player.black;   // Later, players will roll to see who goes first
         this.rollDice();
         for (i=0; i<=24; i++) {
