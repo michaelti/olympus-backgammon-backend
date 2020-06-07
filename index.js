@@ -6,9 +6,9 @@ const plakoto = require('./plakoto.js');
 
 io.on('connection', (socket) => {
     let board = plakoto.Board();
-    let boardBackup = plakoto.Board();
     //let submoves = new Array();
     board.initPlakoto();
+    let boardBackup = clone(board);
     socket.emit('game/update-board', board);
 
     // Client event: start room
