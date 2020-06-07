@@ -20,11 +20,13 @@ function Submove(from, to){
 };
 
 let Board = {
-    
+
     // Initialize the board for a game of plakoto
     initPlakoto() {
         this.off1 = 0;
         this.off2 = 0;
+        this.bar1 = 0;
+        this.bar2 = 0;
         this.pips = new Array(25),
         this.dice = new Array(2),
 
