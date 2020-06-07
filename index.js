@@ -48,7 +48,7 @@ io.on('connection', (socket) => {
          * Else, return an error and undo the partial move
         */
         if (boardBackup.isTurnValid(submoves)) {
-            board.turn = board.otherPlayer;
+            board.turn = board.otherPlayer();
             board.rollDice();
             boardBackup = clone(board);
         }
