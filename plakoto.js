@@ -21,20 +21,13 @@ function Submove(from, to){
 
 const Board = () => ({
     turn: Player.empty,
-    off1: 0, off2: 0,
-    bar1: 0, bar2: 0,
+    offWhite: 0, barWhite: 0,
+    offBlack: 0, barBlack: 0,
     pips: new Array(25),
     dice: new Array(2),
 
     // Initialize the board for a game of plakoto
     initPlakoto() {
-        this.off1 = 0;
-        this.off2 = 0;
-        this.bar1 = 0;
-        this.bar2 = 0;
-        this.pips = new Array(25),
-        this.dice = new Array(2),
-
         this.turn = Player.black;   // Later, players will roll to see who goes first
         this.rollDice();
         for (i=0; i<=24; i++) {
@@ -148,11 +141,20 @@ const Board = () => ({
             }
         }
         return ret;
+    },
+
+    getSubmove(from, to) {
+        if (this.isValid(from, to)) {
+            this.doSubmove(from, to);             
+            this.turn = this.otherPlayer();
+            this.rollDice();
+        }
+        return this;
     }
 });
 
 function playPlakoto() {
-    let board = Object.create(Board);
+    let board = Board();
     board.initPlakoto();
     board.print();
     let from, to;

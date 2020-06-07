@@ -34,6 +34,9 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('game/submove', ({from, to}, callback) => {
+        callback(board.getSubmove(from, to));
+    });
 
     /* Basic connection events */
 
