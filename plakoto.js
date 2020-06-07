@@ -19,7 +19,7 @@ function Submove(from, to){
     this.to = to;
 };
 
-let Board = {
+const Board = () => ({
     turn: Player.empty,
     off1: 0, off2: 0,
     bar1: 0, bar2: 0,
@@ -142,7 +142,7 @@ let Board = {
         }
         return ret;
     }
-};
+});
 
 function playPlakoto() {
     let board = Object.create(Board);

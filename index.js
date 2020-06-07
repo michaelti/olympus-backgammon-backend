@@ -4,7 +4,7 @@ const io = require('socket.io')(process.env.PORT, {
 const plakoto = require('./plakoto.js');
 
 io.on('connection', (socket) => {
-    let board = Object.create(plakoto.Board);
+    let board = plakoto.Board();
     board.initPlakoto();
     socket.emit('game/update-board', board);
 
