@@ -166,4 +166,5 @@ function playPlakoto() {
     }
 };
 
-playPlakoto();
+//playPlakoto();
+exports.Board = Board;

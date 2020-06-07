@@ -1,8 +1,12 @@
 const io = require('socket.io')(process.env.PORT, {
     serveClient: false,
 });
+const plakoto = require('./plakoto.js');
 
 io.on('connection', (socket) => {
+    let board = Object.create(plakoto.Board);
+    board.initPlakoto();
+    socket.emit('game/update-board', board);
 
     // Client event: start room
     socket.on('event/start-room', () => {
@@ -50,9 +54,8 @@ io.on('connection', (socket) => {
         console.log(`Client disconnected (id: ${socket.id})`);
     });
 
+
 });
-
-
 
 // Helper to return random alphanumeric string of length n
 function randomAalphanumeric(length) {
