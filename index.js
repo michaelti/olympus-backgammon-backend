@@ -6,7 +6,7 @@ const plakoto = require('./plakoto.js');
 
 io.on('connection', (socket) => {
     let board = plakoto.Board();
-    //let submoves = new Array();
+    let submoves = new Array();
     board.initPlakoto();
     let boardBackup = clone(board);
     socket.emit('game/update-board', board);
