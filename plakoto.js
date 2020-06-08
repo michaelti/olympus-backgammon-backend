@@ -39,11 +39,10 @@ const Board = () => ({
 
     rollDice() {
         this.dice = [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1];
-        /* Temporarily disable doubles
+        // Doubles
         if (this.dice[0] === this.dice[1]) {
             this.dice = this.dice.concat(this.dice);
         }
-        */
     },
 
     // Print an ASCII game board to console
