@@ -71,10 +71,10 @@ const Board = () => ({
         if (from < 1 || from > 24 || to < 1 || to > 24){
             return false;
         }
-        if (this.pips[from].top !== this.turn) {
+        if (this.pips[from].top.code !== this.turn.code) {
             return false;
         }
-        if (this.pips[to].top === this.otherPlayer() && this.pips[to].size > 1) {
+        if (this.pips[to].top.code === this.otherPlayer().code && this.pips[to].size > 1) {
             return false;
         }
         if (! this.dice.includes( this.turn.direction * (to - from) ) ) {
@@ -111,8 +111,8 @@ const Board = () => ({
 
     // Returns the player who's turn it ISN'T
     otherPlayer() {
-        if (this.turn === Player.black) return Player.white;
-        if (this.turn === Player.white) return Player.black;
+        if (this.turn.code === Player.black.code) return Player.white;
+        if (this.turn.code === Player.white.code) return Player.black;
         return Player.empty;
     },
 
