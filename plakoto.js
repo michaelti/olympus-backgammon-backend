@@ -3,24 +3,21 @@ const clone = require('ramda.clone');
 
 // Enum-like object
 const Player = Object.freeze({
-    empty : {direction: 0, name: "Empty", code: "-"},
-    white : {direction: 1, name: "White", code: "W"},
-    black : {direction:-1, name: "Black", code: "B"},
+    neither:  0,
+    white:  1,
+    black: -1,
 });
 
-function Pip(size = 0, owner = Player.empty) {
-    this.size = size;
-    this.top = owner;
-    this.bot = owner;
-};
+const Pip = (size = 0, owner = Player.neither) => ({
+    size: size,
+    top: owner,
+    bot: owner,
+});
 
-function Submove(from, to){
-    this.from = from;
-    this.to = to;
-};
+const Submove = (from, to) => ({ from, to });
 
 const Board = () => ({
-    turn: Player.empty,
+    turn: Player.neither,
     offWhite: 0, barWhite: 0,
     offBlack: 0, barBlack: 0,
     pips: new Array(25),
@@ -31,10 +28,10 @@ const Board = () => ({
         this.turn = Player.black;   // Later, players will roll to see who goes first
         this.rollDice();
         for (i=0; i<=24; i++) {
-            this.pips[i] = new Pip();
+            this.pips[i] = Pip();
         }
-        this.pips[24] = new Pip(15, Player.black);  // Black moves towards pip 1 (decreasing)
-        this.pips[1] = new Pip(15, Player.white);   // White moves towards pip 24 (increasing)
+        this.pips[24] = Pip(15, Player.black);  // Black moves towards pip 1 (decreasing)
+        this.pips[1] = Pip(15, Player.white);   // White moves towards pip 24 (increasing)
     },
 
     rollDice() {
@@ -45,23 +42,6 @@ const Board = () => ({
         }
     },
 
-    // Print an ASCII game board to console
-    print() {
-        let temp = "";
-        for (i=13; i<=24; i++) {
-            temp += `(${ i })${ this.pips[i].top.code }${ this.pips[i].size }${ this.pips[i].bot.code } `;
-        }
-        console.log(temp);
-        temp = "";
-        for (i=12; i>=1; i--) {
-            if (i < 10)
-                temp += `( ${ i })${ this.pips[i].top.code }${ this.pips[i].size }${ this.pips[i].bot.code } `;
-            else
-                temp += `(${ i })${ this.pips[i].top.code }${ this.pips[i].size }${ this.pips[i].bot.code } `;
-        }
-        console.log(temp + '\n');
-    },
-
     // Is the move valid?
     // from:    Move from pip # <eg. 1>
     // to:      Move to pip # <eg. 4>
@@ -70,13 +50,13 @@ const Board = () => ({
         if (from < 1 || from > 24 || to < 1 || to > 24){
             return false;
         }
-        if (this.pips[from].top.code !== this.turn.code) {
+        if (this.pips[from].top !== this.turn) {
             return false;
         }
-        if (this.pips[to].top.code === this.otherPlayer().code && this.pips[to].size > 1) {
+        if (this.pips[to].top === this.otherPlayer() && this.pips[to].size > 1) {
             return false;
         }
-        if (! this.dice.includes( this.turn.direction * (to - from) ) ) {
+        if (! this.dice.includes( this.turn * (to - from) ) ) {
             return false;
         }
         return true;
@@ -85,8 +65,8 @@ const Board = () => ({
     doSubmove(from, to) {
         // From pip
         if (this.pips[from].size === 1) {
-            this.pips[from].top = Player.empty;
-            this.pips[from].bot = Player.empty;
+            this.pips[from].top = Player.neither;
+            this.pips[from].bot = Player.neither;
         }
         else if (this.pips[from].size === 2 && this.pips[from].top !== this.pips[from].bot){
             this.pips[from].top = this.pips[from].bot;
@@ -110,9 +90,9 @@ const Board = () => ({
 
     // Returns the player who's turn it ISN'T
     otherPlayer() {
-        if (this.turn.code === Player.black.code) return Player.white;
-        if (this.turn.code === Player.white.code) return Player.black;
-        return Player.empty;
+        if (this.turn === Player.black) return Player.white;
+        if (this.turn === Player.white) return Player.black;
+        return Player.neither;
     },
 
     // Returns 2D array
@@ -123,7 +103,7 @@ const Board = () => ({
         for (const die of uniqueDice) {
             for (let pipIndex=1; pipIndex<=24; pipIndex++) {
                 if (this.pips[pipIndex].top === this.turn) {
-                    let currentMove = new Submove(pipIndex, this.turn.direction * die + Number(pipIndex));
+                    let currentMove = Submove(pipIndex, this.turn * die + Number(pipIndex));
                     if (this.isValid(currentMove.from, currentMove.to)) {
                         // deep copy game board using ramda
                         let newBoard = clone(this);
@@ -144,11 +124,13 @@ const Board = () => ({
         return ret;
     },
 
-    getSubmove(from, to) {
+    // Returns true if the move was successful
+    trySubmove(from, to) {
         if (this.isValid(from, to)) {
             this.doSubmove(from, to);
+            return true;
         }
-        return this;
+        return false;
     },
 
     isTurnValid() {
@@ -159,18 +141,18 @@ const Board = () => ({
 function playPlakoto() {
     let board = Board();
     board.initPlakoto();
-    board.print();
+    console.dir(board.pips);
     let from, to;
 
     while (true) {
         while (board.dice.length > 0) {
             console.log("Your dice are: " + board.dice);
             console.log(board.allPossibleMoves());
-            from = prompt(`${board.turn.name} move from: `);
-            to   = prompt(`${board.turn.name} move to  : `);
+            from = prompt(`Player ${board.turn} move from: `);
+            to   = prompt(`Player ${board.turn} move to  : `);
             if (board.isValid(from, to)) {
                 board.doSubmove(from, to);
-                board.print();
+                console.dir(board.pips);
             }
         }
         board.turn = board.otherPlayer();
@@ -180,3 +162,4 @@ function playPlakoto() {
 
 //playPlakoto();
 exports.Board = Board;
+exports.Submove = Submove;

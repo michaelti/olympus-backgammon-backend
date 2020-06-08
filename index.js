@@ -37,9 +37,11 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('game/submove', ({from, to}, callback) => {
-        // submoves.push({from, to});
-        callback(board.getSubmove(from, to));
+    socket.on('game/submove', (from, to, callback) => {
+        if (board.trySubmove(from, to)) {
+            submoves.push(plakoto.Submove(from, to));
+        }
+        callback(board);
     });
 
     socket.on('game/apply-turn', (callback) => {
@@ -55,12 +57,12 @@ io.on('connection', (socket) => {
         else {
             board = clone(boardBackup);
         }
-        // submoves = [];
+        submoves = [];
         callback(board);
     });
 
     socket.on('game/undo', (callback) => {
-        // submoves = [];
+        submoves = [];
         board = clone(boardBackup);
         callback(board);
     });
@@ -84,8 +86,9 @@ io.on('connection', (socket) => {
         console.log(`Client disconnected (id: ${socket.id})`);
     });
 
-
 });
+
+
 
 // Helper to return random alphanumeric string of length n
 function randomAalphanumeric(length) {
