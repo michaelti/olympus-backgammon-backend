@@ -30,7 +30,7 @@
   },
   "nodemonConfig": {
     "events": {
-      "start": "clear"
+      "start": "node -e 'console.clear()'"
     }
   },
   "prettier": {
