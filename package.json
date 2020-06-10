@@ -1,8 +1,7 @@
 {
   "name": "olympus-backgammon-backend",
   "version": "0.1.0",
-  "description": "",
-  "main": "src/index.js",
+  "private": true,
   "scripts": {
     "start": "nodemon --watch src/ --exec 'npm run lint && npm run start-server'",
     "start-server": "node -r dotenv/config src/index.js",
