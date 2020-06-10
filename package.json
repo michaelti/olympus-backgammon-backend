@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node -r dotenv/config index.js",
+    "start": "nodemon -r dotenv/config src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -12,5 +12,11 @@
     "prompt-sync": "^4.2.0",
     "ramda.clone": "^0.26.1",
     "socket.io": "^2.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  },
+  "nodemonConfig": {
+    "watch": ["src/"]
   }
 }
