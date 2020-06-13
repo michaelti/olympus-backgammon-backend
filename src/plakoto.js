@@ -75,11 +75,16 @@ const Board = () => ({
         this.pips[from].size--;
 
         // To pip
-        if (this.pips[to].size === 0) {
-            this.pips[to].bot = this.turn;
+        if (to === -1) { // Bearing off
+            if (this.turn === Player.white) offWhite++;
+            if (this.turn === Player.black) offBlack++;
+        } else {
+            if (this.pips[to].size === 0) {
+                this.pips[to].bot = this.turn;
+            }
+            this.pips[to].top = this.turn;
+            this.pips[to].size++;
         }
-        this.pips[to].top = this.turn;
-        this.pips[to].size++;
 
         // Handle dice. NOTE: this will only work for 2 distinct values or 4 idencital values
         if (this.dice[0] === Math.abs(from - to)) {
