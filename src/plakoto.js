@@ -36,12 +36,23 @@ const Board = () => ({
         this.pips[1] = Pip(15, Player.white); // White moves towards pip 24 (increasing)
     },
 
+    initTest() {
+        this.turn = Player.white; // Later, players will roll to see who goes first
+        this.dice = [3, 5];
+        for (let i = 0; i <= 24; i++) {
+            this.pips[i] = Pip();
+        }
+        this.pips[12] = Pip(15, Player.black); // Black moves towards pip 1 (decreasing)
+        this.pips[21] = Pip(5, Player.white); // White moves towards pip 24 (increasing)
+        this.pips[23] = Pip(5, Player.white);
+    },
+
     rollDice() {
         this.dice = [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1];
+        // Sort smallest to largest
+        if (this.dice[0] > this.dice[1]) this.dice.reverse();
         // Doubles
-        if (this.dice[0] === this.dice[1]) {
-            this.dice = this.dice.concat(this.dice);
-        }
+        if (this.dice[0] === this.dice[1]) this.dice = this.dice.concat(this.dice);
     },
 
     // Is the move valid?
@@ -49,17 +60,55 @@ const Board = () => ({
     // to:      Move to pip # <eg. 4>
     // return:  Returns a boolean
     isValid(from, to) {
-        if (from < 1 || from > 24 || to < 1 || to > 24) {
-            return false;
-        }
-        if (this.pips[from].top !== this.turn) {
-            return false;
-        }
-        if (this.pips[to].top === this.otherPlayer() && this.pips[to].size > 1) {
-            return false;
-        }
-        if (!this.dice.includes(this.turn * (to - from))) {
-            return false;
+        if (to > 25) to = 25;
+        if (to < 0) to = 0;
+
+        if (this.pips[from].top !== this.turn) return false;
+        // Bearing off; TODO: re-write this
+        if (to == 25 && this.turn === Player.white) {
+            if (from <= 18) return false;
+            for (let i = 1; i <= 18; i++) {
+                if (this.pips[i].top === this.turn || this.pips[i].bot == this.turn) return false;
+            }
+            // If not an exact match
+            if (!this.dice.includes(to - from)) {
+                // Then check if there's a bigger dice
+                if (this.dice[0] > to - from || this.dice[1] > to - from) {
+                    for (let i = 19; i < from; i++) {
+                        if (this.pips[i].top === this.turn || this.pips[i].bot == this.turn) {
+                            return false;
+                        }
+                    }
+                } else {
+                    return false;
+                }
+            }
+        } else if (to == 0 && this.turn === Player.black) {
+            if (from > 6) return false;
+            for (let i = 24; i >= 6; i--) {
+                if (this.pips[i].top === this.turn || this.pips[i].bot == this.turn) return false;
+            }
+            // If not an exact match
+            if (!this.dice.includes(from - to)) {
+                // Then check if there's a bigger dice
+                if (this.dice[0] > from - to) {
+                    for (let i = 6; i >= this.dice[0]; i--) {
+                        if (this.pips[i].top === this.turn || this.pips[i].bot == this.turn)
+                            return false;
+                    }
+                } else if (this.dice[1] > from - to) {
+                    for (let i = 6; i >= this.dice[0]; i--) {
+                        if (this.pips[i].top === this.turn || this.pips[i].bot == this.turn)
+                            return false;
+                    }
+                } else {
+                    return false;
+                }
+            }
+        } else {
+            if (from < 1 || from > 24 || to < 1 || to > 24) return false;
+            if (this.pips[to].top === this.otherPlayer() && this.pips[to].size > 1) return false;
+            if (!this.dice.includes(this.turn * (to - from))) return false;
         }
         return true;
     },
@@ -75,9 +124,10 @@ const Board = () => ({
         this.pips[from].size--;
 
         // To pip
-        if (to === -1) { // Bearing off
-            if (this.turn === Player.white) offWhite++;
-            if (this.turn === Player.black) offBlack++;
+        if (to == 0 || to == 25) {
+            // Bearing off
+            if (this.turn === Player.white) this.offWhite++;
+            if (this.turn === Player.black) this.offBlack++;
         } else {
             if (this.pips[to].size === 0) {
                 this.pips[to].bot = this.turn;
@@ -87,7 +137,7 @@ const Board = () => ({
         }
 
         // Handle dice. NOTE: this will only work for 2 distinct values or 4 idencital values
-        if (this.dice[0] === Math.abs(from - to)) {
+        if (this.dice[0] >= Math.abs(from - to)) {
             this.dice.shift();
         } else {
             this.dice.pop();
