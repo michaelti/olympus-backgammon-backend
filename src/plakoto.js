@@ -75,9 +75,8 @@ const Board = () => ({
                 // Then check if there's a bigger dice
                 if (this.dice[0] > to - from || this.dice[1] > to - from) {
                     for (let i = 19; i < from; i++) {
-                        if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn) {
+                        if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn)
                             return false;
-                        }
                     }
                 } else {
                     return false;
@@ -91,13 +90,8 @@ const Board = () => ({
             // If not an exact match
             if (!this.dice.includes(from - to)) {
                 // Then check if there's a bigger dice
-                if (this.dice[0] > from - to) {
-                    for (let i = 6; i >= this.dice[0]; i--) {
-                        if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn)
-                            return false;
-                    }
-                } else if (this.dice[1] > from - to) {
-                    for (let i = 6; i >= this.dice[0]; i--) {
+                if (this.dice[0] > from - to || this.dice[i] > from - to) {
+                    for (let i = 6; i> from; i--) {
                         if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn)
                             return false;
                     }
