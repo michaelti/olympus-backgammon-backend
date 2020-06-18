@@ -16,6 +16,8 @@ const Pip = (size = 0, owner = Player.neither) => ({
 
 const Submove = (from, to) => ({ from, to });
 
+const range = (start, end, length = end - start + 1) => Array.from({ length }, (_, i) => start + i);
+
 const Board = () => ({
     turn: Player.neither,
     offWhite: 0,
@@ -55,6 +57,18 @@ const Board = () => ({
         if (this.dice[0] === this.dice[1]) this.dice = this.dice.concat(this.dice);
     },
 
+    nonHomePips() {
+        if (this.turn === Player.white) return range(1, 18);
+
+        return range(7, 24);
+    },
+
+    homePipsFurtherThan(from) {
+        if (this.turn === Player.white) return range(19, from - 1);
+
+        return range(from + 1, 6);
+    },
+
     // Is the move valid?
     // from:    Move from pip # <eg. 1>
     // to:      Move to pip # <eg. 4>
@@ -64,17 +78,18 @@ const Board = () => ({
         if (to < 0) to = 0;
 
         if (this.pips[from].top !== this.turn) return false;
-        // Bearing off; TODO: re-write this
-        if (to === 25 && this.turn === Player.white) {
-            if (from <= 18) return false;
-            for (let i = 1; i <= 18; i++) {
+
+        // Bearing off
+        if (to === 25 || to === 0) {
+            // if (White and < 19 OR Black and > 6) return false
+            for (let i of this.nonHomePips()) {
                 if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn) return false;
             }
             // If not an exact match
-            if (!this.dice.includes(to - from)) {
+            if (!this.dice.includes(Math.abs(from - to))) {
                 // Then check if there's a bigger dice
-                if (this.dice[0] > to - from || this.dice[1] > to - from) {
-                    for (let i = 19; i < from; i++) {
+                if (this.dice[0] > Math.abs(from - to) || this.dice[1] > Math.abs(from - to)) {
+                    for (let i of this.homePipsFurtherThan(from)) {
                         if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn)
                             return false;
                     }
@@ -82,28 +97,14 @@ const Board = () => ({
                     return false;
                 }
             }
-        } else if (to === 0 && this.turn === Player.black) {
-            if (from > 6) return false;
-            for (let i = 24; i >= 6; i--) {
-                if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn) return false;
-            }
-            // If not an exact match
-            if (!this.dice.includes(from - to)) {
-                // Then check if there's a bigger dice
-                if (this.dice[0] > from - to || this.dice[i] > from - to) {
-                    for (let i = 6; i> from; i--) {
-                        if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn)
-                            return false;
-                    }
-                } else {
-                    return false;
-                }
-            }
-        } else {
+        } 
+        // Standard move
+        else {
             if (from < 1 || from > 24 || to < 1 || to > 24) return false;
             if (this.pips[to].top === this.otherPlayer() && this.pips[to].size > 1) return false;
             if (!this.dice.includes(this.turn * (to - from))) return false;
         }
+
         return true;
     },
 
