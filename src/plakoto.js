@@ -65,17 +65,17 @@ const Board = () => ({
 
         if (this.pips[from].top !== this.turn) return false;
         // Bearing off; TODO: re-write this
-        if (to == 25 && this.turn === Player.white) {
+        if (to === 25 && this.turn === Player.white) {
             if (from <= 18) return false;
             for (let i = 1; i <= 18; i++) {
-                if (this.pips[i].top === this.turn || this.pips[i].bot == this.turn) return false;
+                if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn) return false;
             }
             // If not an exact match
             if (!this.dice.includes(to - from)) {
                 // Then check if there's a bigger dice
                 if (this.dice[0] > to - from || this.dice[1] > to - from) {
                     for (let i = 19; i < from; i++) {
-                        if (this.pips[i].top === this.turn || this.pips[i].bot == this.turn) {
+                        if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn) {
                             return false;
                         }
                     }
@@ -83,22 +83,22 @@ const Board = () => ({
                     return false;
                 }
             }
-        } else if (to == 0 && this.turn === Player.black) {
+        } else if (to === 0 && this.turn === Player.black) {
             if (from > 6) return false;
             for (let i = 24; i >= 6; i--) {
-                if (this.pips[i].top === this.turn || this.pips[i].bot == this.turn) return false;
+                if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn) return false;
             }
             // If not an exact match
             if (!this.dice.includes(from - to)) {
                 // Then check if there's a bigger dice
                 if (this.dice[0] > from - to) {
                     for (let i = 6; i >= this.dice[0]; i--) {
-                        if (this.pips[i].top === this.turn || this.pips[i].bot == this.turn)
+                        if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn)
                             return false;
                     }
                 } else if (this.dice[1] > from - to) {
                     for (let i = 6; i >= this.dice[0]; i--) {
-                        if (this.pips[i].top === this.turn || this.pips[i].bot == this.turn)
+                        if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn)
                             return false;
                     }
                 } else {
@@ -114,6 +114,8 @@ const Board = () => ({
     },
 
     doSubmove(from, to) {
+        if (to > 25) to = 25;
+        if (to < 0) to = 0;
         // From pip
         if (this.pips[from].size === 1) {
             this.pips[from].top = Player.neither;
@@ -124,7 +126,7 @@ const Board = () => ({
         this.pips[from].size--;
 
         // To pip
-        if (to == 0 || to == 25) {
+        if (to === 0 || to === 25) {
             // Bearing off
             if (this.turn === Player.white) this.offWhite++;
             if (this.turn === Player.black) this.offBlack++;
@@ -205,8 +207,8 @@ function playPlakoto() {
             console.log(board.allPossibleMoves());
             from = prompt(`Player ${board.turn} move from: `);
             to = prompt(`Player ${board.turn} move to  : `);
-            if (board.isValid(from, to)) {
-                board.doSubmove(from, to);
+            if (board.isValid(Number(from), Number(to))) {
+                board.doSubmove(Number(from), Number(to));
                 console.dir(board.pips);
             }
         }
