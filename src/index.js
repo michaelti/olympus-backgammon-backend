@@ -6,9 +6,8 @@ const plakoto = require("./plakoto.js");
 const util = require("./util.js");
 
 io.on("connection", (socket) => {
-    let board = plakoto.Board();
-    let boardBackup = clone(board);
-    let submoves = new Array();
+    let currentRoom = null;
+
     socketOnConnected();
 
     /* ROOM EVENT LISTENERS */
@@ -20,6 +19,19 @@ io.on("connection", (socket) => {
 
         // Join ("create") the room
         socket.join(roomName, () => {
+            // Set the current room
+            currentRoom = io.sockets.adapter.rooms[roomName];
+            currentRoom.roomName = roomName;
+
+            // Initialize a board for the current room
+            currentRoom.board = plakoto.Board();
+            currentRoom.board.initPlakoto();
+            currentRoom.boardBackup = clone(currentRoom.board);
+            currentRoom.submoves = new Array();
+
+            // Broadcast the board to everyone in the room
+            sendUpdatedBoard(currentRoom.board);
+
             // Send the room name back to the client
             acknowledge({ ok: true, roomName });
         });
@@ -30,6 +42,13 @@ io.on("connection", (socket) => {
         // Check if the room exists
         if (io.sockets.adapter.rooms[roomName]) {
             socket.join(roomName, () => {
+                // Set the current room
+                currentRoom = io.sockets.adapter.rooms[roomName];
+                currentRoom.roomName = roomName;
+
+                // Broadcast the board to everyone in the room
+                sendUpdatedBoard(currentRoom.board);
+
                 // Send the room name back to the client
                 acknowledge({ ok: true, roomName });
             });
@@ -43,10 +62,10 @@ io.on("connection", (socket) => {
 
     // Game event: submove
     socket.on("game/submove", (from, to) => {
-        if (board.trySubmove(from, to)) {
-            submoves.push(plakoto.Submove(from, to));
+        if (currentRoom.board.trySubmove(from, to)) {
+            currentRoom.submoves.push(plakoto.Submove(from, to));
         }
-        sendUpdatedBoard(board);
+        sendUpdatedBoard(currentRoom.board);
     });
 
     // Game event: apply turn
@@ -55,29 +74,29 @@ io.on("connection", (socket) => {
          * If the move is valid, end the player's turn
          * Else, return an error and undo the partial move
          */
-        if (boardBackup.isTurnValid(submoves)) {
-            board.turn = board.otherPlayer();
-            board.rollDice();
-            boardBackup = clone(board);
+        if (currentRoom.boardBackup.isTurnValid(currentRoom.submoves)) {
+            currentRoom.board.turn = currentRoom.board.otherPlayer();
+            currentRoom.board.rollDice();
+            currentRoom.boardBackup = clone(currentRoom.board);
         } else {
-            board = clone(boardBackup);
+            currentRoom.board = clone(currentRoom.boardBackup);
         }
-        submoves = [];
-        sendUpdatedBoard(board);
+        currentRoom.submoves = [];
+        sendUpdatedBoard(currentRoom.board);
     });
 
     // Game event: undo
     socket.on("game/undo", () => {
-        submoves = [];
-        board = clone(boardBackup);
-        sendUpdatedBoard(board);
+        currentRoom.submoves = [];
+        currentRoom.board = clone(currentRoom.boardBackup);
+        sendUpdatedBoard(currentRoom.board);
     });
 
     /* GAME EVENT EMITTERS */
 
     // Send an updated board object to the client(s)
     function sendUpdatedBoard(board) {
-        socket.emit("game/update-board", board);
+        io.sockets.in(currentRoom.roomName).emit("game/update-board", board);
     }
 
     /* SOCKET CONNECTION EVENT LISTENERS */
@@ -85,9 +104,6 @@ io.on("connection", (socket) => {
     // Client connected
     function socketOnConnected() {
         console.log(`Client connected (id: ${socket.id})`);
-        board.initPlakoto();
-        boardBackup = clone(board);
-        sendUpdatedBoard(board);
     }
 
     // Client disconnecting
