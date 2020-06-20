@@ -20,11 +20,11 @@ io.on("connection", (socket) => {
         // Join ("create") the room
         socket.join(roomName, () => {
             // Leave previous room if already in one
-            if (currentRoom) {
+            if (currentRoom && currentRoom.roomName !== roomName) {
                 socket.leave(currentRoom.roomName);
             }
 
-            // Set the current room
+            // Set the current room reference
             currentRoom = io.sockets.adapter.rooms[roomName];
             currentRoom.roomName = roomName;
 
@@ -48,11 +48,11 @@ io.on("connection", (socket) => {
         if (io.sockets.adapter.rooms[roomName]) {
             socket.join(roomName, () => {
                 // Leave previous room if already in one
-                if (currentRoom) {
+                if (currentRoom && currentRoom.roomName !== roomName) {
                     socket.leave(currentRoom.roomName);
                 }
 
-                // Set the current room
+                // Set the current room reference
                 currentRoom = io.sockets.adapter.rooms[roomName];
                 currentRoom.roomName = roomName;
 
