@@ -136,7 +136,3 @@ io.on("connection", (socket) => {
         console.log(`Client disconnected (id: ${socket.id})`);
     });
 });
-
-function testUnusedFunction() {
-    console.log("bad");
-}
