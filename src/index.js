@@ -72,6 +72,8 @@ io.on("connection", (socket) => {
 
     // Game event: submove
     socket.on("game/submove", (from, to) => {
+        if (!currentRoom) return;
+
         if (currentRoom.board.trySubmove(from, to)) {
             currentRoom.submoves.push(plakoto.Submove(from, to));
         }
@@ -80,6 +82,8 @@ io.on("connection", (socket) => {
 
     // Game event: apply turn
     socket.on("game/apply-turn", () => {
+        if (!currentRoom) return;
+
         /* Validate the whole turn by passing the array of submoves to a method
          * If the move is valid, end the player's turn
          * Else, return an error and undo the partial move
@@ -97,6 +101,8 @@ io.on("connection", (socket) => {
 
     // Game event: undo
     socket.on("game/undo", () => {
+        if (!currentRoom) return;
+
         currentRoom.submoves = [];
         currentRoom.board = clone(currentRoom.boardBackup);
         sendUpdatedBoard(currentRoom.board);
