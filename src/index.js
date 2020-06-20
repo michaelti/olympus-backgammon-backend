@@ -137,4 +137,6 @@ io.on("connection", (socket) => {
     });
 });
 
-console.log('test bad formatting')
+function testUnusedFunction() {
+    console.log("bad");
+}
