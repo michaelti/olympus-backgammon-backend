@@ -136,3 +136,5 @@ io.on("connection", (socket) => {
         console.log(`Client disconnected (id: ${socket.id})`);
     });
 });
+
+console.log('test bad formatting')
