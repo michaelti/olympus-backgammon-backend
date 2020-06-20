@@ -38,17 +38,6 @@ const Board = () => ({
         this.pips[1] = Pip(15, Player.white); // White moves towards pip 24 (increasing)
     },
 
-    initTest() {
-        this.turn = Player.white; // Later, players will roll to see who goes first
-        this.dice = [3, 5];
-        for (let i = 0; i <= 24; i++) {
-            this.pips[i] = Pip();
-        }
-        this.pips[12] = Pip(15, Player.black); // Black moves towards pip 1 (decreasing)
-        this.pips[21] = Pip(5, Player.white); // White moves towards pip 24 (increasing)
-        this.pips[23] = Pip(5, Player.white);
-    },
-
     rollDice() {
         this.dice = [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1];
         // Sort smallest to largest
@@ -184,28 +173,5 @@ const Board = () => ({
     },
 });
 
-function playPlakoto() {
-    let board = Board();
-    board.initPlakoto();
-    console.dir(board.pips);
-    let from, to;
-
-    while (true) {
-        while (board.dice.length > 0) {
-            console.log("Your dice are: " + board.dice);
-            console.log(board.allPossibleMoves());
-            from = prompt(`Player ${board.turn} move from: `);
-            to = prompt(`Player ${board.turn} move to  : `);
-            if (board.isValid(Number(from), Number(to))) {
-                board.doSubmove(Number(from), Number(to));
-                console.dir(board.pips);
-            }
-        }
-        board.turn = board.otherPlayer();
-        board.rollDice();
-    }
-}
-
-//playPlakoto();
 exports.Board = Board;
 exports.Submove = Submove;
