@@ -167,7 +167,16 @@ const Board = () => ({
         return false;
     },
 
-    isTurnValid() {
+    isTurnValid(submoves) {
+        let maxMoveLength = 0;
+        const possibleMoves = this.allPossibleMoves();
+        for (let move of possibleMoves) {
+            if (move.length > maxMoveLength) maxMoveLength = move.length;
+        }
+        if (maxMoveLength !== submoves.length) {
+            console.error(`Error: only ${submoves.length} of ${maxMoveLength} submoves recieved`);
+            return false;
+        }
         return true;
     },
 });
