@@ -1,6 +1,6 @@
-# Olympus Backgammon - backend
+# Olympus Backgammon - back-end
 
-Node.js backend for the work-in-progress Olympus Backgammon project. Connects to a separate [frontend](https://github.com/michaelti/olympus-backgammon-frontend) React interface.
+Node.js back-end for the work-in-progress Olympus Backgammon project. Connects to a separate [front-end](https://github.com/michaelti/olympus-backgammon-frontend) React interface.
 
 ![reviewdog](https://github.com/michaelti/olympus-backgammon-backend/workflows/reviewdog/badge.svg)
 
