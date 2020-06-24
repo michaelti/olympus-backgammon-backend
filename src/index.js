@@ -1,7 +1,6 @@
 require("dotenv").config();
 const io = require("socket.io")(process.env.PORT, {
     serveClient: false,
-    pingInterval: 1000,
 });
 const clone = require("ramda.clone");
 const plakoto = require("./plakoto.js");
