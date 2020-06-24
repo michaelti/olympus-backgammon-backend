@@ -147,6 +147,8 @@ const Board = () => ({
                         if (nextMoves.length) {
                             for (const nextMove of nextMoves) {
                                 ret.push([currentMove, ...nextMove]);
+                                if ([currentMove, ...nextMove].length === 4)
+                                    throw "Possible move of length 4 detected";
                             }
                         } else {
                             ret.push([currentMove]);
@@ -169,9 +171,14 @@ const Board = () => ({
 
     isTurnValid(submoves) {
         let maxMoveLength = 0;
-        const possibleMoves = this.allPossibleMoves();
-        for (let move of possibleMoves) {
-            if (move.length > maxMoveLength) maxMoveLength = move.length;
+        try {
+            const possibleMoves = this.allPossibleMoves();
+            for (let move of possibleMoves) {
+                if (move.length > maxMoveLength) maxMoveLength = move.length;
+            }
+        } catch (four) {
+            console.log(four);
+            maxMoveLength = 4;
         }
         if (maxMoveLength !== submoves.length) {
             console.error(`Error: only ${submoves.length} of ${maxMoveLength} submoves recieved`);
