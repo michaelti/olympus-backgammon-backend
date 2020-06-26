@@ -37,8 +37,11 @@ io.on("connection", (socket) => {
             currentRoom.boardBackup = clone(currentRoom.board);
             currentRoom.submoves = new Array();
 
+<<<<<<< HEAD
             currentRoom.players = {};
 
+=======
+>>>>>>> master
             // Send the room name back to the client
             acknowledge({ ok: true, roomName });
         });
