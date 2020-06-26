@@ -23,6 +23,7 @@ io.on("connection", (socket) => {
         socket.join(roomName, () => {
             // Leave previous room if already in one
             if (currentRoom && currentRoom.roomName !== roomName) {
+                // Remove entry from the players object of the current room, if any.
                 if (currentRoom.players) delete currentRoom.players[socket.id];
                 socket.leave(currentRoom.roomName);
             }
@@ -52,6 +53,7 @@ io.on("connection", (socket) => {
             socket.join(roomName, () => {
                 // Leave previous room if already in one
                 if (currentRoom && currentRoom.roomName !== roomName) {
+                    // Remove entry from the players object of the current room, if any.
                     if (currentRoom.players) delete currentRoom.players[socket.id];
                     socket.leave(currentRoom.roomName);
                 }
