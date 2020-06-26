@@ -62,6 +62,7 @@ io.on("connection", (socket) => {
                 currentRoom = io.sockets.adapter.rooms[roomName];
                 currentRoom.roomName = roomName;
 
+                // Add entry to the players list for this room, if there's space.
                 if (!currentRoom.players[socket.id]) {
                     if (Object.keys(currentRoom.players).length < 2) {
                         if (!Object.values(currentRoom.players).includes(gameUtil.Player.white)) {
