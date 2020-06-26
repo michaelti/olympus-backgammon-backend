@@ -5,6 +5,7 @@ const io = require("socket.io")(process.env.PORT, {
 const clone = require("ramda.clone");
 const plakoto = require("./plakoto.js");
 const util = require("./util.js");
+const gameUtil = require("./gameUtil");
 
 io.on("connection", (socket) => {
     let currentRoom = null;
@@ -22,6 +23,7 @@ io.on("connection", (socket) => {
         socket.join(roomName, () => {
             // Leave previous room if already in one
             if (currentRoom && currentRoom.roomName !== roomName) {
+                if (currentRoom.players) delete currentRoom.players[socket.id];
                 socket.leave(currentRoom.roomName);
             }
 
@@ -35,6 +37,8 @@ io.on("connection", (socket) => {
             currentRoom.boardBackup = clone(currentRoom.board);
             currentRoom.submoves = new Array();
 
+            currentRoom.players = {};
+
             // Send the room name back to the client
             acknowledge({ ok: true, roomName });
         });
@@ -47,6 +51,7 @@ io.on("connection", (socket) => {
             socket.join(roomName, () => {
                 // Leave previous room if already in one
                 if (currentRoom && currentRoom.roomName !== roomName) {
+                    if (currentRoom.players) delete currentRoom.players[socket.id];
                     socket.leave(currentRoom.roomName);
                 }
 
@@ -54,11 +59,21 @@ io.on("connection", (socket) => {
                 currentRoom = io.sockets.adapter.rooms[roomName];
                 currentRoom.roomName = roomName;
 
+                if (!currentRoom.players[socket.id]) {
+                    if (Object.keys(currentRoom.players).length < 2) {
+                        if (!Object.values(currentRoom.players).includes(gameUtil.Player.white)) {
+                            currentRoom.players[socket.id] = gameUtil.Player.white;
+                        } else {
+                            currentRoom.players[socket.id] = gameUtil.Player.black;
+                        }
+                    }
+                }
+
                 // Broadcast the board to everyone in the room
                 sendUpdatedBoard(currentRoom.board);
 
                 // Send the room name back to the client
-                acknowledge({ ok: true, roomName });
+                acknowledge({ ok: true, roomName, player: currentRoom.players[socket.id] });
             });
         } else {
             // Send a failure event back to the client
@@ -71,6 +86,7 @@ io.on("connection", (socket) => {
     // Game event: submove
     socket.on("game/submove", (from, to) => {
         if (!currentRoom) return;
+        if (currentRoom.players[socket.id] !== currentRoom.board.turn) return;
 
         if (currentRoom.board.trySubmove(from, to)) {
             currentRoom.submoves.push(plakoto.Submove(from, to));
@@ -81,6 +97,7 @@ io.on("connection", (socket) => {
     // Game event: apply turn
     socket.on("game/apply-turn", () => {
         if (!currentRoom) return;
+        if (currentRoom.players[socket.id] !== currentRoom.board.turn) return;
 
         /* Validate the whole turn by passing the array of submoves to a method
          * If the move is valid, end the player's turn
@@ -100,6 +117,7 @@ io.on("connection", (socket) => {
     // Game event: undo
     socket.on("game/undo", () => {
         if (!currentRoom) return;
+        if (currentRoom.players[socket.id] !== currentRoom.board.turn) return;
 
         currentRoom.submoves = [];
         currentRoom.board = clone(currentRoom.boardBackup);
@@ -122,6 +140,11 @@ io.on("connection", (socket) => {
 
     // Client disconnecting
     socket.on("disconnecting", () => {
+        // Remove the client from the players object of the current room, if any.
+        if (currentRoom && currentRoom.players) {
+            delete currentRoom.players[socket.id];
+        }
+
         // Log that the client is disconnecting from each room they were in, if any.
         Object.keys(socket.rooms).forEach((roomName) => {
             if (roomName === socket.id) return;
