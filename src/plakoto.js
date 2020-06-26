@@ -1,7 +1,5 @@
 const clone = require("ramda.clone");
-const gameUtil = require("./gameUtil");
-
-const Player = gameUtil.Player;
+const Player = require("./gameUtil").Player;
 
 const Pip = (size = 0, owner = Player.neither) => ({
     size: size,
