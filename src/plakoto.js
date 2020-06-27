@@ -15,6 +15,9 @@ const Pip = (size = 0, owner = Player.neither) => ({
 
 const Submove = (from, to) => ({ from, to });
 
+// Clamps "to" in range 0–25
+const clamp = (to) => (to < 0 ? 0 : to > 25 ? 25 : to);
+
 const range = (start, end, length = end - start + 1) => Array.from({ length }, (_, i) => start + i);
 
 const Board = () => ({
@@ -45,13 +48,12 @@ const Board = () => ({
         if (this.dice[0] === this.dice[1]) this.dice = this.dice.concat(this.dice);
     },
 
-    // Is the move valid?
+    // Is the submove valid?
     // from:    Move from pip # <eg. 1>
     // to:      Move to pip # <eg. 4>
     // return:  Returns a boolean
-    isValid(from, to) {
-        // Clamps "to" in range 0–25
-        to = to < 0 ? 0 : to > 25 ? 25 : to;
+    isSubmoveValid(from, to) {
+        to = clamp(to);
         if (this.pips[from].top !== this.turn) return false;
 
         // Bearing off
@@ -90,8 +92,7 @@ const Board = () => ({
     },
 
     doSubmove(from, to) {
-        // Clamps "to" in range 0–25
-        to = to < 0 ? 0 : to > 25 ? 25 : to;
+        to = clamp(to);
 
         // From pip
         if (this.pips[from].size === 1) {
@@ -138,8 +139,8 @@ const Board = () => ({
         for (const die of uniqueDice) {
             for (let pipIndex = 1; pipIndex <= 24; pipIndex++) {
                 if (this.pips[pipIndex].top === this.turn) {
-                    let currentMove = Submove(pipIndex, this.turn * die + Number(pipIndex));
-                    if (this.isValid(currentMove.from, currentMove.to)) {
+                    let currentMove = Submove(pipIndex, clamp(this.turn * die + Number(pipIndex)));
+                    if (this.isSubmoveValid(currentMove.from, currentMove.to)) {
                         // deep copy game board using ramda
                         let newBoard = clone(this);
                         newBoard.doSubmove(currentMove.from, currentMove.to);
@@ -162,27 +163,36 @@ const Board = () => ({
 
     // Returns true if the move was successful
     trySubmove(from, to) {
-        if (this.isValid(from, to)) {
+        if (this.isSubmoveValid(from, to)) {
             this.doSubmove(from, to);
             return true;
         }
         return false;
     },
 
+    // Validates a turn of 0–4 submoves
     isTurnValid(submoves) {
-        let maxMoveLength = 0;
         try {
+            let maxMoveLength = 0;
             const possibleMoves = this.allPossibleMoves();
             for (let move of possibleMoves) {
                 if (move.length > maxMoveLength) maxMoveLength = move.length;
             }
+            // Validate turn length
+            if (maxMoveLength !== submoves.length) return false;
+            // Validate single submove turn uses the largest dice value possible
+            if (maxMoveLength === 1 && this.dice.length === 2) {
+                const submoveDistance = (s) => Math.abs(s.from - s.to);
+                // if the supplied submove matches the small dice
+                if (submoveDistance(submoves[0]) === this.dice[0]) {
+                    for (let move of possibleMoves) {
+                        if (submoveDistance(move[0]) === this.dice[1]) return false;
+                    }
+                }
+            }
         } catch (four) {
-            console.log(four);
-            maxMoveLength = 4;
-        }
-        if (maxMoveLength !== submoves.length) {
-            console.error(`Error: only ${submoves.length} of ${maxMoveLength} submoves recieved`);
-            return false;
+            // Code optimization when there's a possible 4 submove turn
+            if (submoves.length !== 4) return false;
         }
         return true;
     },
