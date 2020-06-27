@@ -170,29 +170,29 @@ const Board = () => ({
         return false;
     },
 
-    // Validates a turn of 0–4 submoves
-    isTurnValid(submoves) {
+    // Validates a turn of 0–4 moves
+    isTurnValid(moves) {
         try {
-            let maxMoveLength = 0;
-            const possibleMoves = this.allPossibleMoves();
-            for (let move of possibleMoves) {
-                if (move.length > maxMoveLength) maxMoveLength = move.length;
+            let maxTurnLength = 0;
+            const possibleTurns = this.allPossibleMoves();
+            for (let turn of possibleTurns) {
+                if (turn.length > maxTurnLength) maxTurnLength = turn.length;
             }
             // Validate turn length
-            if (maxMoveLength !== submoves.length) return false;
-            // Validate single submove turn uses the largest dice value possible
-            if (maxMoveLength === 1 && this.dice.length === 2) {
-                const submoveDistance = (s) => Math.abs(s.from - s.to);
-                // if the supplied submove matches the small dice
-                if (submoveDistance(submoves[0]) === this.dice[0]) {
-                    for (let move of possibleMoves) {
-                        if (submoveDistance(move[0]) === this.dice[1]) return false;
+            if (maxTurnLength !== moves.length) return false;
+            // Validate single move turn uses the largest dice value possible
+            if (maxTurnLength === 1 && this.dice.length === 2) {
+                const moveDistance = (m) => Math.abs(m.from - m.to);
+                // if the supplied move matches the small dice
+                if (moveDistance(moves[0]) === this.dice[0]) {
+                    for (let turn of possibleTurns) {
+                        if (moveDistance(turn[0]) === this.dice[1]) return false;
                     }
                 }
             }
         } catch (four) {
-            // Code optimization when there's a possible 4 submove turn
-            if (submoves.length !== 4) return false;
+            // Code optimization when there's a possible 4 move turn
+            if (moves.length !== 4) return false;
         }
         return true;
     },
