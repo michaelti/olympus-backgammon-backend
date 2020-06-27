@@ -48,11 +48,11 @@ const Board = () => ({
         if (this.dice[0] === this.dice[1]) this.dice = this.dice.concat(this.dice);
     },
 
-    // Is the submove valid?
+    // Is the move valid?
     // from:    Move from pip # <eg. 1>
     // to:      Move to pip # <eg. 4>
     // return:  Returns a boolean
-    isSubmoveValid(from, to) {
+    isValid(from, to) {
         to = clamp(to);
         if (this.pips[from].top !== this.turn) return false;
 
@@ -140,7 +140,7 @@ const Board = () => ({
             for (let pipIndex = 1; pipIndex <= 24; pipIndex++) {
                 if (this.pips[pipIndex].top === this.turn) {
                     let currentMove = Submove(pipIndex, clamp(this.turn * die + Number(pipIndex)));
-                    if (this.isSubmoveValid(currentMove.from, currentMove.to)) {
+                    if (this.isValid(currentMove.from, currentMove.to)) {
                         // deep copy game board using ramda
                         let newBoard = clone(this);
                         newBoard.doSubmove(currentMove.from, currentMove.to);
@@ -163,7 +163,7 @@ const Board = () => ({
 
     // Returns true if the move was successful
     trySubmove(from, to) {
-        if (this.isSubmoveValid(from, to)) {
+        if (this.isValid(from, to)) {
             this.doSubmove(from, to);
             return true;
         }
