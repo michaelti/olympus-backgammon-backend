@@ -3,8 +3,8 @@ const io = require("socket.io")(process.env.PORT, {
     serveClient: false,
 });
 const clone = require("ramda.clone");
-const plakoto = require("./plakoto.js");
-const util = require("./util.js");
+const plakoto = require("./plakoto");
+const util = require("./util");
 const gameUtil = require("./gameUtil");
 
 io.on("connection", (socket) => {
@@ -34,7 +34,7 @@ io.on("connection", (socket) => {
 
             // Initialize a game for the current room
             currentRoom.board = plakoto.Board();
-            currentRoom.board.initPlakoto();
+            currentRoom.board.initGame();
             currentRoom.boardBackup = clone(currentRoom.board);
             currentRoom.moves = new Array();
 
@@ -93,7 +93,7 @@ io.on("connection", (socket) => {
         if (currentRoom.players[socket.id] !== currentRoom.board.turn) return;
 
         if (currentRoom.board.tryMove(from, to)) {
-            currentRoom.moves.push(plakoto.Move(from, to));
+            currentRoom.moves.push(gameUtil.Move(from, to));
         }
         sendUpdatedBoard(currentRoom.board);
     });

@@ -1,30 +1,15 @@
+const { Board, Pip } = require("./backgammon");
+const { Move, Player, clamp } = require("./gameUtil");
 const clone = require("ramda.clone");
-const Player = require("./gameUtil").Player;
+const util = require("./util");
 
-const Pip = (size = 0, owner = Player.neither) => ({
-    size: size,
-    top: owner,
-    bot: owner,
-});
+const Plakoto = () => ({
+    // Inherit from generic board
+    ...Board(),
 
-const Move = (from, to) => ({ from, to });
-
-// Clamps "to" in range 0–25
-const clamp = (to) => (to < 0 ? 0 : to > 25 ? 25 : to);
-
-const range = (start, end, length = end - start + 1) => Array.from({ length }, (_, i) => start + i);
-
-const Board = () => ({
-    turn: Player.neither,
-    offWhite: 0,
-    barWhite: 0,
-    offBlack: 0,
-    barBlack: 0,
-    pips: new Array(25),
-    dice: new Array(2),
-
+    // Implement Plakoto-specific methods and variables
     // Initialize the board for a game of plakoto
-    initPlakoto() {
+    initGame() {
         this.turn = Player.white; // Later, players will roll to see who goes first
         this.rollDice();
         for (let i = 0; i <= 24; i++) {
@@ -32,14 +17,6 @@ const Board = () => ({
         }
         this.pips[24] = Pip(15, Player.black); // Black moves towards pip 1 (decreasing)
         this.pips[1] = Pip(15, Player.white); // White moves towards pip 24 (increasing)
-    },
-
-    rollDice() {
-        this.dice = [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1];
-        // Sort smallest to largest
-        if (this.dice[0] > this.dice[1]) this.dice.reverse();
-        // Doubles
-        if (this.dice[0] === this.dice[1]) this.dice = this.dice.concat(this.dice);
     },
 
     // Is the move valid?
@@ -55,7 +32,7 @@ const Board = () => ({
             if (this.turn === Player.white && from < 19) return false;
             if (this.turn === Player.black && from > 6) return false;
             // Range of all pips excluding the current player's home quadrant
-            const nonHomePips = this.turn === Player.white ? range(1, 18) : range(7, 24);
+            const nonHomePips = this.turn === Player.white ? util.range(1, 18) : util.range(7, 24);
             for (let i of nonHomePips) {
                 if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn) return false;
             }
@@ -65,7 +42,9 @@ const Board = () => ({
                 if (this.dice[0] > Math.abs(from - to) || this.dice[1] > Math.abs(from - to)) {
                     // Range of pips in the player's home quadrant that are further away than the pip they are trying to bear off of
                     const farHomePips =
-                        this.turn === Player.white ? range(19, from - 1) : range(from + 1, 6);
+                        this.turn === Player.white
+                            ? util.range(19, from - 1)
+                            : util.range(from + 1, 6);
                     for (let i of farHomePips) {
                         if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn)
                             return false;
@@ -118,13 +97,6 @@ const Board = () => ({
         }
     },
 
-    // Returns the player who's turn it ISN'T
-    otherPlayer() {
-        if (this.turn === Player.black) return Player.white;
-        if (this.turn === Player.white) return Player.black;
-        return Player.neither;
-    },
-
     // Returns 2D array
     allPossibleTurns() {
         if (this.dice.length === 0) return [];
@@ -153,15 +125,6 @@ const Board = () => ({
             }
         }
         return ret;
-    },
-
-    // Returns true if the move was successful
-    tryMove(from, to) {
-        if (this.isMoveValid(from, to)) {
-            this.doMove(from, to);
-            return true;
-        }
-        return false;
     },
 
     // Validates a turn of 0–4 moves
@@ -193,5 +156,4 @@ const Board = () => ({
     },
 });
 
-exports.Board = Board;
-exports.Move = Move;
+exports.Board = Plakoto;
