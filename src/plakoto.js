@@ -1,7 +1,6 @@
-const { Board, Pip } = require("./backgammon");
-const { Move, Player, clamp } = require("./gameUtil");
+const { Board, Pip, Move, Player, clamp } = require("./gameUtil");
 const clone = require("ramda.clone");
-const util = require("./util");
+const { range } = require("./util");
 
 const Plakoto = () => ({
     // Inherit from generic board
@@ -32,7 +31,7 @@ const Plakoto = () => ({
             if (this.turn === Player.white && from < 19) return false;
             if (this.turn === Player.black && from > 6) return false;
             // Range of all pips excluding the current player's home quadrant
-            const nonHomePips = this.turn === Player.white ? util.range(1, 18) : util.range(7, 24);
+            const nonHomePips = this.turn === Player.white ? range(1, 18) : range(7, 24);
             for (let i of nonHomePips) {
                 if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn) return false;
             }
@@ -42,9 +41,7 @@ const Plakoto = () => ({
                 if (this.dice[0] > Math.abs(from - to) || this.dice[1] > Math.abs(from - to)) {
                     // Range of pips in the player's home quadrant that are further away than the pip they are trying to bear off of
                     const farHomePips =
-                        this.turn === Player.white
-                            ? util.range(19, from - 1)
-                            : util.range(from + 1, 6);
+                        this.turn === Player.white ? range(19, from - 1) : range(from + 1, 6);
                     for (let i of farHomePips) {
                         if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn)
                             return false;
