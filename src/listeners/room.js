@@ -5,7 +5,7 @@ const gameUtil = require("../gameUtil");
 
 /* ROOM EVENT LISTENERS */
 
-module.exports = (socket, io) => {
+module.exports = function (socket, io) {
     // Room event: start room
     socket.on("event/start-room", (acknowledge) => {
         // Generate a random room name string

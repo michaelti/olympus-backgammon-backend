@@ -3,7 +3,7 @@ const clone = require("ramda.clone");
 
 /* GAME EVENT LISTENERS */
 
-module.exports = (socket, io) => {
+module.exports = function (socket, io) {
     // Game event: move
     socket.on("game/move", (from, to) => {
         if (!socket.currentRoom) return;

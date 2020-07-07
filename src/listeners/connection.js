@@ -1,6 +1,6 @@
 /* SOCKET CONNECTION EVENT LISTENERS */
 
-module.exports = (socket) => {
+module.exports = function (socket) {
     // Client connected
     console.log(`Client connected (id: ${socket.id})`);
 
