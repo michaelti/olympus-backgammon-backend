@@ -15,7 +15,6 @@ module.exports = function (socket, io) {
             socket.leave(socket.currentRoom);
         }
 
-        // Create ("join") the room
         socket.join(roomName, () => {
             // 1. Set the current room reference on this socket
             // 2. Create and initialize the room
