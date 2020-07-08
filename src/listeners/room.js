@@ -31,13 +31,13 @@ module.exports = function (socket, io) {
         // Check if the room exists
         if (!rooms[roomName]) return acknowledge({ ok: false, roomName });
 
-        socket.join(roomName, () => {
-            // Leave previous room if already in one that's not this one
-            if (socket.currentRoom && socket.currentRoom !== roomName) {
-                rooms[socket.currentRoom].leaveRoom(socket.id);
-                socket.leave(socket.currentRoom);
-            }
+        // Leave previous room if already in one that's not this one
+        if (socket.currentRoom && socket.currentRoom !== roomName) {
+            rooms[socket.currentRoom].leaveRoom(socket.id);
+            socket.leave(socket.currentRoom);
+        }
 
+        socket.join(roomName, () => {
             // 1. Set the current room reference on this socket
             // 2. Add this socket to the room
             // 3. Send an acknowledgement with room name back and player enum to the client
