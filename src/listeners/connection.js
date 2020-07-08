@@ -1,8 +1,6 @@
-const rooms = require("../rooms");
-
 /* SOCKET CONNECTION EVENT LISTENERS */
 
-module.exports = function (socket) {
+module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
     // Client connected
     console.log(`Client connected (id: ${socket.id})`);
 
@@ -10,7 +8,7 @@ module.exports = function (socket) {
     socket.on("disconnecting", () => {
         // Remove the client from the players object of the current room, if any.
         if (socket.currentRoom && rooms[socket.currentRoom].players) {
-            rooms[socket.currentRoom].leaveRoom(socket.id);
+            rooms[socket.currentRoom].removePlayer(socket.id);
         }
 
         // Log that the client is disconnecting from each room they were in, if any.

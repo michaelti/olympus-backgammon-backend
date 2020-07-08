@@ -1,9 +1,9 @@
 const { randomAlphanumeric } = require("../util.js");
-const rooms = require("../rooms");
+const { Room } = require("../rooms");
 
 /* ROOM EVENT LISTENERS */
 
-module.exports = function (socket, io) {
+module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
     // Room event: start room
     socket.on("event/start-room", (acknowledge) => {
         // Generate a random room name string
@@ -11,16 +11,16 @@ module.exports = function (socket, io) {
 
         // Leave previous room if already in one that's not this one
         if (socket.currentRoom && socket.currentRoom !== roomName) {
-            rooms[socket.currentRoom].leaveRoom(socket.id);
+            rooms[socket.currentRoom].removePlayer(socket.id);
             socket.leave(socket.currentRoom);
         }
 
         socket.join(roomName, () => {
             // 1. Set the current room reference on this socket
-            // 2. Create and initialize the room
+            // 2. Initialize the room object
             // 3. Send an acknowledegment with room name back to the client
             socket.currentRoom = roomName;
-            rooms.createRoom(socket.currentRoom);
+            Object.assign(rooms[roomName], Room()).initRoom();
             acknowledge({ ok: true, roomName });
         });
     });
@@ -32,13 +32,13 @@ module.exports = function (socket, io) {
 
         // Leave previous room if already in one that's not this one
         if (socket.currentRoom && socket.currentRoom !== roomName) {
-            rooms[socket.currentRoom].leaveRoom(socket.id);
+            rooms[socket.currentRoom].removePlayer(socket.id);
             socket.leave(socket.currentRoom);
         }
 
         socket.join(roomName, () => {
             // 1. Set the current room reference on this socket
-            // 2. Add this socket to the room
+            // 2. Add this player to the room object
             // 3. Send an acknowledgement with room name back and player enum to the client
             socket.currentRoom = roomName;
             rooms[socket.currentRoom].addPlayer(socket.id);

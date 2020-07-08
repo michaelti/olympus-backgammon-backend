@@ -3,8 +3,7 @@ const clone = require("ramda.clone");
 const { Player } = require("./gameUtil");
 
 // Base Room object
-const Room = (roomName) => ({
-    roomName,
+exports.Room = () => ({
     board: null,
     boardBackup: null,
     moves: null,
@@ -21,30 +20,51 @@ const Room = (roomName) => ({
         this.players = {};
     },
 
-    leaveRoom(socketId) {
-        delete this.players[socketId];
-    },
-
-    addPlayer(socketId) {
-        if (this.players[socketId]) return;
+    addPlayer(id) {
+        if (this.players[id]) return;
 
         // Add entry to the players list for this room, if there's space
         if (Object.keys(this.players).length < 2) {
             if (!Object.values(this.players).includes(Player.white)) {
-                this.players[socketId] = Player.white;
+                this.players[id] = Player.white;
             } else {
-                this.players[socketId] = Player.black;
+                this.players[id] = Player.black;
             }
         }
     },
-});
 
-// Global Rooms object
-const rooms = {
-    createRoom(roomName) {
-        this[roomName] = Room(roomName);
-        this[roomName].initRoom();
+    removePlayer(id) {
+        delete this.players[id];
     },
-};
 
-module.exports = rooms;
+    isPlayerTurn(id) {
+        return this.players[id] === this.board.turn;
+    },
+
+    gameMove(from, to) {
+        if (this.board.tryMove(from, to)) {
+            this.moves.push(plakoto.Move(from, to));
+        }
+    },
+
+    gameApplyTurn() {
+        /* Validate the whole turn by passing the array of moves to a method
+         * If the turn is valid, end the player's turn
+         * Else, return an error and undo the partial turn
+         */
+        if (this.boardBackup.isTurnValid(this.moves)) {
+            this.board.turn = this.board.otherPlayer();
+            this.board.rollDice();
+            this.boardBackup = clone(this.board);
+        } else {
+            this.board = clone(this.boardBackup);
+        }
+
+        this.moves = [];
+    },
+
+    gameUndoTurn() {
+        this.moves = [];
+        this.board = clone(this.boardBackup);
+    },
+});
