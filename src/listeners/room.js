@@ -1,5 +1,5 @@
 const { randomAlphanumeric } = require("../util.js");
-const { Room } = require("../rooms");
+const Room = require("../roomObj");
 
 /* ROOM EVENT LISTENERS */
 
