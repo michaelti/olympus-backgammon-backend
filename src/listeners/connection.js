@@ -1,3 +1,5 @@
+const rooms = require("../rooms");
+
 /* SOCKET CONNECTION EVENT LISTENERS */
 
 module.exports = function (socket) {
@@ -7,8 +9,8 @@ module.exports = function (socket) {
     // Client disconnecting
     socket.on("disconnecting", () => {
         // Remove the client from the players object of the current room, if any.
-        if (socket.currentRoom && socket.currentRoom.players) {
-            delete socket.currentRoom.players[socket.id];
+        if (socket.currentRoom && rooms[socket.currentRoom].players) {
+            rooms[socket.currentRoom].leaveRoom(socket.id);
         }
 
         // Log that the client is disconnecting from each room they were in, if any.
