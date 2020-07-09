@@ -17,14 +17,18 @@ exports.Board = () => ({
     offBlack: 0,
     barBlack: 0,
     pips: new Array(25),
+    diceRolled: new Array(2),
     dice: new Array(2),
 
     rollDice() {
-        this.dice = [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1];
-        // Sort smallest to largest
-        if (this.dice[0] > this.dice[1]) this.dice.reverse();
+        this.diceRolled = [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1];
+
         // Doubles
-        if (this.dice[0] === this.dice[1]) this.dice = this.dice.concat(this.dice);
+        if (this.diceRolled[0] === this.diceRolled[1])
+            this.diceRolled = this.diceRolled.concat(this.diceRolled);
+
+        // Sort smallest to largest
+        this.dice = [...this.diceRolled].sort((a, b) => a - b);
     },
 
     // Returns the player who's turn it ISN'T
