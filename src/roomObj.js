@@ -47,6 +47,7 @@ const Room = () => ({
         }
     },
 
+    // Returns the player who won the game: black, white, or neither
     gameApplyTurn() {
         /* Validate the whole turn by passing the array of moves to a method
          * If the turn is valid, end the player's turn
@@ -60,7 +61,7 @@ const Room = () => ({
         } else {
             this.gameUndoTurn();
         }
-        return 0;
+        return Player.neither;
     },
 
     gameUndoTurn() {

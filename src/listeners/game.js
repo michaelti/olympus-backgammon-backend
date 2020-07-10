@@ -26,10 +26,7 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
             .in(socket.currentRoom)
             .emit("game/update-board", rooms[socket.currentRoom].board);
 
-        if (winner) {
-            console.log("Player " + winner + " is the winner");
-            io.sockets.in(socket.currentRoom).emit("game/win", winner);
-        }
+        if (winner) io.sockets.in(socket.currentRoom).emit("game/win", winner);
     });
 
     // Game event: undo
