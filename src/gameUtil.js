@@ -25,7 +25,7 @@ exports.Board = () => ({
     barWhite: 0,
     offBlack: 0,
     barBlack: 0,
-    pips: Array(25).fill(Pip()),
+    pips: Array.from({ length: 25 }, Pip),
     diceRolled: new Array(2),
     dice: new Array(2),
 
