@@ -1,5 +1,6 @@
 const { randomAlphanumeric } = require("../util.js");
-const Room = require("../roomObj");
+const { State, Room } = require("../roomObj");
+const { Variant } = require("../gameUtil");
 
 /* ROOM EVENT LISTENERS */
 
@@ -53,5 +54,20 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
                 .in(socket.currentRoom)
                 .emit("game/update-board", rooms[socket.currentRoom].board);
         });
+    });
+
+    // Room event: select variant
+    socket.on("room/select-variant", (variant, acknowledge) => {
+        if (!socket.currentRoom) return;
+        if (rooms[socket.currentRoom].state !== State.setup) return;
+        if (!Object.values(Variant).includes(variant)) return;
+
+        rooms[socket.currentRoom].startGame(variant);
+        acknowledge({ ok: true });
+
+        // Broadcast the board to everyone in the room
+        io.sockets
+            .in(socket.currentRoom)
+            .emit("game/update-board", rooms[socket.currentRoom].board);
     });
 };

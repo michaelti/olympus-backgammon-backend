@@ -1,29 +1,35 @@
 const clone = require("ramda.clone");
 const plakoto = require("./plakoto");
-const { Player, Move } = require("./gameUtil");
+const { Player, Variant, Move } = require("./gameUtil");
+
+const State = Object.freeze({
+    undefined: 0,
+    setup: 1,
+    startingRoll: 2,
+    game: 3,
+});
 
 // Base Room object
-const Room = () => ({
+exports.Room = () => ({
     board: null,
     boardBackup: null,
     moves: null,
     players: null,
+    state: State.undefined,
 
     initRoom() {
+        this.state = State.setup;
         // Initialize a list of players
         this.players = {};
-
-        // roll to see who goes first
-
-        // Start a new game
-        this.startGame(Player.white);
     },
 
-    startGame(starter) {
+    startGame(type) {
         // Initialize a game
-        this.board = plakoto.Board();
-        this.board.initGame(starter);
+        if (type === Variant.plakoto) this.board = plakoto.Board();
+        else console.error("Only plakoto is currently available");
+        this.board.initGame();
         this.boardBackup = clone(this.board);
+        this.state = State.game;
         this.moves = new Array();
     },
 
@@ -80,4 +86,4 @@ const Room = () => ({
     },
 });
 
-module.exports = Room;
+exports.State = State;
