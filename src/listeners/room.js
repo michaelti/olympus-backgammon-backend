@@ -69,7 +69,7 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
         if (rooms[socket.currentRoom].step !== Step.setup) return;
         if (!Object.values(Variant).includes(variant)) return;
 
-        rooms[socket.currentRoom].startGame(variant);
+        rooms[socket.currentRoom].initGame(variant);
         acknowledge({ ok: true });
 
         // Broadcast the room step to everyone in the room
@@ -87,10 +87,10 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
     // Room event: roll to go first
     socket.on("room/starting-roll", () => {
         if (!socket.currentRoom) return;
-        //if (rooms[socket.currentRoom].players[socket.id] === Player.neither) return;
+        if (rooms[socket.currentRoom].players[socket.id] === Player.neither) return;
         if (rooms[socket.currentRoom].step !== Step.startingRoll) return;
 
-        rooms[socket.currentRoom].roll(socket.id);
+        rooms[socket.currentRoom].roll(rooms[socket.currentRoom].players[socket.id]);
 
         // Broadcast the room step to everyone in the room
         io.sockets.in(socket.currentRoom).emit("room/update-room", {

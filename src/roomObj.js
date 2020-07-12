@@ -15,10 +15,10 @@ exports.Room = () => ({
     boardBackup: null,
     moves: null,
     players: {},
-    startingRolls: { white: null, black: null },
+    startingRolls: { [Player.white]: null, [Player.black]: null },
     step: Step.setup,
 
-    startGame(type) {
+    initGame(type) {
         // Initialize a game
         if (type === Variant.plakoto) this.board = plakoto.Board();
         else console.error("Only plakoto is currently available");
@@ -27,36 +27,31 @@ exports.Room = () => ({
         this.moves = new Array();
     },
 
-    roll(id) {
-        switch (this.players[id]) {
-            case Player.white:
-                if (this.startingRolls.white === null) this.startingRolls.white = rollDie();
-                break;
-            case Player.black:
-                if (this.startingRolls.black === null) this.startingRolls.black = rollDie();
-                break;
-            default:
-                return;
-        }
-        // If both players have rolled
-        if (this.startingRolls.white !== null && this.startingRolls.black !== null) {
-            // If those rolls are not the same
-            if (this.startingRolls.white !== this.startingRolls.black) {
-                this.step = Step.game;
-                this.board.rollDice();
-                this.board.turn =
-                    this.startingRolls.black > this.startingRolls.white
-                        ? Player.black
-                        : Player.white;
-                this.boardBackup = clone(this.board);
+    startGame() {
+        this.step = Step.game;
+        this.board.rollDice();
+        this.board.turn =
+            this.startingRolls[Player.black] > this.startingRolls[Player.white]
+                ? Player.black
+                : Player.white;
+        this.boardBackup = clone(this.board);
+    },
+
+    roll(player) {
+        if (this.startingRolls[player] === null) this.startingRolls[player] = rollDie();
+
+        // If both players have rolled different values
+        if (this.startingRolls[Player.white] && this.startingRolls[Player.black]) {
+            if (this.startingRolls[Player.white] !== this.startingRolls[Player.black]) {
+                this.startGame();
             }
         }
     },
 
+    // If the players roll the same number, clear the saved values so they can roll again
     rollCleanup() {
-        if (this.startingRolls.white === this.startingRolls.black) {
-            this.startingRolls.white = null;
-            this.startingRolls.black = null;
+        if (this.startingRolls[Player.white] === this.startingRolls[Player.black]) {
+            this.startingRolls = { [Player.white]: null, [Player.black]: null };
         }
     },
 
