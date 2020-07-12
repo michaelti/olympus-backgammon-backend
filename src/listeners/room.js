@@ -21,7 +21,7 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
             // 2. Initialize the room object
             // 3. Send an acknowledegment with room name back to the client
             socket.currentRoom = roomName;
-            Object.assign(rooms[roomName], Room()).initRoom();
+            Object.assign(rooms[roomName], Room());
             acknowledge({ ok: true, roomName });
         });
     });

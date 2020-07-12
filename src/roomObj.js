@@ -14,14 +14,8 @@ exports.Room = () => ({
     board: null,
     boardBackup: null,
     moves: null,
-    players: null,
-    state: State.undefined,
-
-    initRoom() {
-        this.state = State.setup;
-        // Initialize a list of players
-        this.players = {};
-    },
+    players: {},
+    state: State.setup,
 
     startGame(type) {
         // Initialize a game
