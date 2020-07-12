@@ -15,14 +15,12 @@ exports.Room = () => ({
     boardBackup: null,
     moves: null,
     players: null,
-    host: null,
     state: State.undefined,
 
-    initRoom(hostId) {
+    initRoom() {
         this.state = State.setup;
         // Initialize a list of players
         this.players = {};
-        this.host = hostId;
     },
 
     startGame(type) {
@@ -42,7 +40,6 @@ exports.Room = () => ({
         if (Object.keys(this.players).length < 2) {
             if (!Object.values(this.players).includes(Player.white)) {
                 this.players[id] = Player.white;
-                if (!this.players[this.host]) this.host = id;
             } else {
                 this.players[id] = Player.black;
             }
@@ -51,10 +48,6 @@ exports.Room = () => ({
 
     removePlayer(id) {
         delete this.players[id];
-    },
-
-    isHost(id) {
-        return this.host === id;
     },
 
     isPlayerTurn(id) {

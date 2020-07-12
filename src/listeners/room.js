@@ -1,6 +1,6 @@
 const { randomAlphanumeric } = require("../util.js");
 const { State, Room } = require("../roomObj");
-const { Variant } = require("../gameUtil");
+const { Variant, Player } = require("../gameUtil");
 
 /* ROOM EVENT LISTENERS */
 
@@ -21,7 +21,7 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
             // 2. Initialize the room object
             // 3. Send an acknowledegment with room name back to the client
             socket.currentRoom = roomName;
-            Object.assign(rooms[roomName], Room()).initRoom(socket.id);
+            Object.assign(rooms[roomName], Room()).initRoom();
             acknowledge({ ok: true, roomName });
         });
     });
@@ -47,7 +47,6 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
                 ok: true,
                 roomName,
                 player: rooms[socket.currentRoom].players[socket.id],
-                isHost: rooms[socket.currentRoom].host === socket.id,
             });
 
             // Broadcast the board to everyone in the room
@@ -55,7 +54,8 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
                 .in(socket.currentRoom)
                 .emit("game/update-board", rooms[socket.currentRoom].board);
 
-            socket.emit("room/update-room", {
+            // Broadcast the room state to everyone in the room
+            io.sockets.in(socket.currentRoom).emit("room/update-room", {
                 state: rooms[socket.currentRoom].state,
             });
         });
@@ -64,7 +64,7 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
     // Room event: select variant
     socket.on("room/select-variant", (variant, acknowledge) => {
         if (!socket.currentRoom) return;
-        if (!rooms[socket.currentRoom].isHost(socket.id)) return;
+        if (rooms[socket.currentRoom].players[socket.id] !== Player.white) return;
         if (rooms[socket.currentRoom].state !== State.setup) return;
         if (!Object.values(Variant).includes(variant)) return;
 
