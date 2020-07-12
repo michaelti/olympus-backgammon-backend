@@ -1,5 +1,5 @@
 const { randomAlphanumeric } = require("../util.js");
-const { State, Room } = require("../roomObj");
+const { Step, Room } = require("../roomObj");
 const { Variant, Player } = require("../gameUtil");
 
 /* ROOM EVENT LISTENERS */
@@ -54,9 +54,9 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
                 .in(socket.currentRoom)
                 .emit("game/update-board", rooms[socket.currentRoom].board);
 
-            // Broadcast the room state to everyone in the room
+            // Broadcast the room step to everyone in the room
             io.sockets.in(socket.currentRoom).emit("room/update-room", {
-                state: rooms[socket.currentRoom].state,
+                step: rooms[socket.currentRoom].step,
                 startingRolls: rooms[socket.currentRoom].startingRolls,
             });
         });
@@ -66,15 +66,15 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
     socket.on("room/select-variant", (variant, acknowledge) => {
         if (!socket.currentRoom) return;
         if (rooms[socket.currentRoom].players[socket.id] !== Player.white) return;
-        if (rooms[socket.currentRoom].state !== State.setup) return;
+        if (rooms[socket.currentRoom].step !== Step.setup) return;
         if (!Object.values(Variant).includes(variant)) return;
 
         rooms[socket.currentRoom].startGame(variant);
         acknowledge({ ok: true });
 
-        // Broadcast the room state to everyone in the room
+        // Broadcast the room step to everyone in the room
         io.sockets.in(socket.currentRoom).emit("room/update-room", {
-            state: rooms[socket.currentRoom].state,
+            step: rooms[socket.currentRoom].step,
             startingRolls: rooms[socket.currentRoom].startingRolls,
         });
 
@@ -88,13 +88,13 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
     socket.on("room/starting-roll", () => {
         if (!socket.currentRoom) return;
         //if (rooms[socket.currentRoom].players[socket.id] === Player.neither) return;
-        if (rooms[socket.currentRoom].state !== State.startingRoll) return;
+        if (rooms[socket.currentRoom].step !== Step.startingRoll) return;
 
         rooms[socket.currentRoom].roll(socket.id);
 
-        // Broadcast the room state to everyone in the room
+        // Broadcast the room step to everyone in the room
         io.sockets.in(socket.currentRoom).emit("room/update-room", {
-            state: rooms[socket.currentRoom].state,
+            step: rooms[socket.currentRoom].step,
             startingRolls: rooms[socket.currentRoom].startingRolls,
         });
 

@@ -2,7 +2,7 @@ const clone = require("ramda.clone");
 const plakoto = require("./plakoto");
 const { Player, Variant, Move, rollDie } = require("./gameUtil");
 
-const State = Object.freeze({
+const Step = Object.freeze({
     undefined: 0,
     setup: 1,
     startingRoll: 2,
@@ -16,14 +16,14 @@ exports.Room = () => ({
     moves: null,
     players: {},
     startingRolls: { white: null, black: null },
-    state: State.setup,
+    step: Step.setup,
 
     startGame(type) {
         // Initialize a game
         if (type === Variant.plakoto) this.board = plakoto.Board();
         else console.error("Only plakoto is currently available");
         this.board.initGame();
-        this.state = State.startingRoll;
+        this.step = Step.startingRoll;
         this.moves = new Array();
     },
 
@@ -42,7 +42,7 @@ exports.Room = () => ({
         if (this.startingRolls.white !== null && this.startingRolls.black !== null) {
             // If those rolls are not the same
             if (this.startingRolls.white !== this.startingRolls.black) {
-                this.state = State.game;
+                this.step = Step.game;
                 this.board.rollDice();
                 this.board.turn =
                     this.startingRolls.black > this.startingRolls.white
@@ -113,4 +113,4 @@ exports.Room = () => ({
     },
 });
 
-exports.State = State;
+exports.Step = Step;
