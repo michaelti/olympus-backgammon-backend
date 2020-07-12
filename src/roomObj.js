@@ -1,6 +1,6 @@
 const clone = require("ramda.clone");
 const plakoto = require("./plakoto");
-const { Player, Variant, Move } = require("./gameUtil");
+const { Player, Variant, Move, rollDie } = require("./gameUtil");
 
 const State = Object.freeze({
     undefined: 0,
@@ -15,6 +15,7 @@ exports.Room = () => ({
     boardBackup: null,
     moves: null,
     players: {},
+    startingRolls: { white: null, black: null },
     state: State.setup,
 
     startGame(type) {
@@ -22,9 +23,41 @@ exports.Room = () => ({
         if (type === Variant.plakoto) this.board = plakoto.Board();
         else console.error("Only plakoto is currently available");
         this.board.initGame();
-        this.boardBackup = clone(this.board);
-        this.state = State.game;
+        this.state = State.startingRoll;
         this.moves = new Array();
+    },
+
+    roll(id) {
+        switch (this.players[id]) {
+            case Player.white:
+                if (this.startingRolls.white === null) this.startingRolls.white = rollDie();
+                break;
+            case Player.black:
+                if (this.startingRolls.black === null) this.startingRolls.black = rollDie();
+                break;
+            default:
+                return;
+        }
+        // If both players have rolled
+        if (this.startingRolls.white !== null && this.startingRolls.black !== null) {
+            // If those rolls are not the same
+            if (this.startingRolls.white !== this.startingRolls.black) {
+                this.state = State.game;
+                this.board.rollDice();
+                this.board.turn =
+                    this.startingRolls.black > this.startingRolls.white
+                        ? Player.black
+                        : Player.white;
+                this.boardBackup = clone(this.board);
+            }
+        }
+    },
+
+    rollCleanup() {
+        if (this.startingRolls.white === this.startingRolls.black) {
+            this.startingRolls.white = null;
+            this.startingRolls.black = null;
+        }
     },
 
     addPlayer(id) {

@@ -30,7 +30,7 @@ exports.Board = () => ({
     dice: new Array(2),
 
     rollDice() {
-        this.diceRolled = [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1];
+        this.diceRolled = [rollDie(), rollDie()];
 
         // Doubles
         if (this.diceRolled[0] === this.diceRolled[1])
@@ -68,5 +68,8 @@ const Pip = (size = 0, owner = Player.neither) => ({
     bot: owner,
 });
 
+const rollDie = () => Math.floor(Math.random() * 6) + 1;
+
 exports.Player = Player;
 exports.Pip = Pip;
+exports.rollDie = rollDie;

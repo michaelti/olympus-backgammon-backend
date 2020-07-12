@@ -57,6 +57,7 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
             // Broadcast the room state to everyone in the room
             io.sockets.in(socket.currentRoom).emit("room/update-room", {
                 state: rooms[socket.currentRoom].state,
+                startingRolls: rooms[socket.currentRoom].startingRolls,
             });
         });
     });
@@ -71,9 +72,37 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
         rooms[socket.currentRoom].startGame(variant);
         acknowledge({ ok: true });
 
+        // Broadcast the room state to everyone in the room
+        io.sockets.in(socket.currentRoom).emit("room/update-room", {
+            state: rooms[socket.currentRoom].state,
+            startingRolls: rooms[socket.currentRoom].startingRolls,
+        });
+
         // Broadcast the board to everyone in the room
         io.sockets
             .in(socket.currentRoom)
             .emit("game/update-board", rooms[socket.currentRoom].board);
+    });
+
+    // Room event: roll to go first
+    socket.on("room/starting-roll", () => {
+        if (!socket.currentRoom) return;
+        //if (rooms[socket.currentRoom].players[socket.id] === Player.neither) return;
+        if (rooms[socket.currentRoom].state !== State.startingRoll) return;
+
+        rooms[socket.currentRoom].roll(socket.id);
+
+        // Broadcast the room state to everyone in the room
+        io.sockets.in(socket.currentRoom).emit("room/update-room", {
+            state: rooms[socket.currentRoom].state,
+            startingRolls: rooms[socket.currentRoom].startingRolls,
+        });
+
+        // Broadcast the board to everyone in the room
+        io.sockets
+            .in(socket.currentRoom)
+            .emit("game/update-board", rooms[socket.currentRoom].board);
+
+        rooms[socket.currentRoom].rollCleanup();
     });
 };
