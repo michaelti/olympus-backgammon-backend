@@ -10,14 +10,21 @@ const Room = () => ({
     players: null,
 
     initRoom() {
-        // Initialize a game
-        this.board = plakoto.Board();
-        this.board.initGame();
-        this.boardBackup = clone(this.board);
-        this.moves = new Array();
-
         // Initialize a list of players
         this.players = {};
+
+        // roll to see who goes first
+
+        // Start a new game
+        this.startGame(Player.white);
+    },
+
+    startGame(starter) {
+        // Initialize a game
+        this.board = plakoto.Board();
+        this.board.initGame(starter);
+        this.boardBackup = clone(this.board);
+        this.moves = new Array();
     },
 
     addPlayer(id) {
