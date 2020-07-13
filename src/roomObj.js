@@ -15,43 +15,40 @@ exports.Room = () => ({
     boardBackup: null,
     moves: null,
     players: {},
-    startingRolls: { [Player.white]: null, [Player.black]: null },
+    dice: { [Player.white]: undefined, [Player.black]: undefined },
     step: Step.setup,
 
     initGame(type) {
-        // Initialize a game
+        // Game type selector
         if (type === Variant.plakoto) this.board = plakoto.Board();
         else console.error("Only plakoto is currently available");
         this.board.initGame();
-        this.step = Step.startingRoll;
         this.moves = new Array();
+        this.step = Step.startingRoll;
     },
 
-    startGame() {
-        this.step = Step.game;
+    startGame(startingPlayer) {
+        this.board.turn = startingPlayer;
         this.board.rollDice();
-        this.board.turn =
-            this.startingRolls[Player.black] > this.startingRolls[Player.white]
-                ? Player.black
-                : Player.white;
         this.boardBackup = clone(this.board);
+        this.step = Step.game;
     },
 
-    roll(player) {
-        if (this.startingRolls[player] === null) this.startingRolls[player] = rollDie();
+    startingRoll(player) {
+        if (!this.dice[player]) this.dice[player] = rollDie();
 
-        // If both players have rolled different values
-        if (this.startingRolls[Player.white] && this.startingRolls[Player.black]) {
-            if (this.startingRolls[Player.white] !== this.startingRolls[Player.black]) {
-                this.startGame();
-            }
+        // If both players have rolled and they are different values
+        if (this.dice[Player.white] > this.dice[Player.black]) {
+            this.startGame(Player.white);
+        } else if (this.dice[Player.black] > this.dice[Player.white]) {
+            this.startGame(Player.black);
         }
     },
 
     // If the players roll the same number, clear the saved values so they can roll again
-    rollCleanup() {
-        if (this.startingRolls[Player.white] === this.startingRolls[Player.black]) {
-            this.startingRolls = { [Player.white]: null, [Player.black]: null };
+    startingRollCleanup() {
+        if (this.dice[Player.white] === this.dice[Player.black]) {
+            this.dice = { [Player.white]: undefined, [Player.black]: undefined };
         }
     },
 

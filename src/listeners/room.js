@@ -57,7 +57,7 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
             // Broadcast the room step to everyone in the room
             io.sockets.in(socket.currentRoom).emit("room/update-room", {
                 step: rooms[socket.currentRoom].step,
-                startingRolls: rooms[socket.currentRoom].startingRolls,
+                startingRolls: rooms[socket.currentRoom].dice,
             });
         });
     });
@@ -75,7 +75,7 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
         // Broadcast the room step to everyone in the room
         io.sockets.in(socket.currentRoom).emit("room/update-room", {
             step: rooms[socket.currentRoom].step,
-            startingRolls: rooms[socket.currentRoom].startingRolls,
+            startingRolls: rooms[socket.currentRoom].dice,
         });
 
         // Broadcast the board to everyone in the room
@@ -90,12 +90,12 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
         if (rooms[socket.currentRoom].players[socket.id] === Player.neither) return;
         if (rooms[socket.currentRoom].step !== Step.startingRoll) return;
 
-        rooms[socket.currentRoom].roll(rooms[socket.currentRoom].players[socket.id]);
+        rooms[socket.currentRoom].startingRoll(rooms[socket.currentRoom].players[socket.id]);
 
         // Broadcast the room step to everyone in the room
         io.sockets.in(socket.currentRoom).emit("room/update-room", {
             step: rooms[socket.currentRoom].step,
-            startingRolls: rooms[socket.currentRoom].startingRolls,
+            startingRolls: rooms[socket.currentRoom].dice,
         });
 
         // Broadcast the board to everyone in the room
@@ -103,6 +103,6 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
             .in(socket.currentRoom)
             .emit("game/update-board", rooms[socket.currentRoom].board);
 
-        rooms[socket.currentRoom].rollCleanup();
+        rooms[socket.currentRoom].startingRollCleanup();
     });
 };
