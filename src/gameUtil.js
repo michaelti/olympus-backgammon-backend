@@ -7,7 +7,6 @@ const Player = Object.freeze({
 
 // Variant of backgammon
 exports.Variant = Object.freeze({
-    undefined: 0,
     portes: 1,
     plakoto: 2,
     fevga: 3,

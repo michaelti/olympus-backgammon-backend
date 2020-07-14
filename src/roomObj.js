@@ -3,7 +3,6 @@ const plakoto = require("./plakoto");
 const { Player, Variant, Move, rollDie } = require("./gameUtil");
 
 const Step = Object.freeze({
-    undefined: 0,
     setup: 1,
     startingRoll: 2,
     game: 3,
