@@ -71,8 +71,8 @@ const Plakoto = () => ({
         // To pip
         if (to === 0 || to === 25) {
             // Bearing off
-            if (this.turn === Player.white) this.offWhite++;
-            if (this.turn === Player.black) this.offBlack++;
+            if (this.turn === Player.white) this.off[Player.white]++;
+            if (this.turn === Player.black) this.off[Player.black]++;
         } else {
             if (this.pips[to].size === 0) {
                 this.pips[to].bot = this.turn;
@@ -149,16 +149,18 @@ const Plakoto = () => ({
 
     // Is the board in a state where either player has won?
     isGameWon() {
-        const whiteHome = this.pips[1];
-        const blackHome = this.pips[24];
-        // One of the players has beared off all of their checkers
-        if (this.offWhite === 15 || this.offBlack === 15) return true;
         // Both player's starting checkers have been trapped: game is a draw
-        if (whiteHome.top !== whiteHome.bot && blackHome.top !== blackHome.bot) return true;
-        // White's starting checker has been pinned and black's is safe: black wins
-        if (whiteHome.top !== whiteHome.bot && blackHome.bot !== Player.black) return true;
-        // Same as above, but reversed: white wins
-        if (blackHome.top !== blackHome.bot && whiteHome.bot !== Player.white) return true;
+        if (this.pips[1].top !== this.pips[1].bot && this.pips[24].top !== this.pips[24].bot)
+            return true;
+
+        // fun
+        const home = { [Player.white]: this.pips[1], [Player.black]: this.pips[24] };
+        for (const plr of [Player.white, Player.black]) {
+            // One of the players has beared off all of their checkers
+            if (this.off[plr] === 15) return true;
+            // other plr's starting checker has been pinned and plr's is safe: plr wins
+            if (home[plr].top !== home[plr].bot && home[-plr].bot !== -plr) return true;
+        }
         return false;
     },
 });

@@ -20,9 +20,8 @@ exports.Move = (from, to) => ({ from, to });
 exports.Board = () => ({
     turn: Player.neither,
     winner: Player.neither,
-    offWhite: 0,
+    off: { [Player.white]: 0, [Player.black]: 0 },
     barWhite: 0,
-    offBlack: 0,
     barBlack: 0,
     pips: Array.from({ length: 25 }, Pip),
     diceRolled: new Array(2),
@@ -57,7 +56,7 @@ exports.Board = () => ({
 
     // Is the board in a state where either player has won?
     isGameWon() {
-        return this.offWhite === 15 || this.offBlack === 15 ? true : false;
+        return this.off[Player.white] === 15 || this.off[Player.black] === 15 ? true : false;
     },
 });
 
