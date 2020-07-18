@@ -85,7 +85,6 @@ exports.Room = () => ({
          * Else, return an error and undo the partial turn */
         if (this.boardBackup.isTurnValid(this.moves)) {
             if (this.board.isGameWon()) {
-                this.board.winner = this.board.turn;
                 this.board.turn = Player.neither;
             } else {
                 this.board.turn = this.board.otherPlayer();

@@ -150,16 +150,26 @@ const Plakoto = () => ({
     // Is the board in a state where either player has won?
     isGameWon() {
         // Both player's starting checkers have been trapped: game is a draw
-        if (this.pips[1].top !== this.pips[1].bot && this.pips[24].top !== this.pips[24].bot)
+        if (this.pips[1].top !== this.pips[1].bot && this.pips[24].top !== this.pips[24].bot) {
+            this.winner = Player.neither;
             return true;
-
-        // fun
-        const home = { [Player.white]: this.pips[1], [Player.black]: this.pips[24] };
-        for (const plr of [Player.white, Player.black]) {
-            // One of the players has beared off all of their checkers
-            if (this.off[plr] === 15) return true;
-            // other plr's starting checker has been pinned and plr's is safe: plr wins
-            if (home[plr].top !== home[plr].bot && home[-plr].bot !== -plr) return true;
+        }
+        const home = {
+            [Player.white]: this.pips[1],
+            [Player.black]: this.pips[24],
+        };
+        // Player has beared off all of their checkers
+        if (this.off[this.turn] === 15) {
+            this.winner = this.turn;
+            return true;
+        }
+        // If other player's starting checker has been pinned and current player's is safe
+        if (
+            home[this.otherPlayer()].top !== home[this.otherPlayer()].bot &&
+            home[this.turn].bot !== this.turn
+        ) {
+            this.winner = this.turn;
+            return true;
         }
         return false;
     },
