@@ -146,6 +146,21 @@ const Plakoto = () => ({
         }
         return true;
     },
+
+    // Is the board in a state where either player has won?
+    isGameWon() {
+        const whiteHome = this.pips[1];
+        const blackHome = this.pips[24];
+        // One of the players has beared off all of their checkers
+        if (this.offWhite === 15 || this.offBlack === 15) return true;
+        // Both player's starting checkers have been trapped: game is a draw
+        if (whiteHome.top !== whiteHome.bot && blackHome.top !== blackHome.bot) return true;
+        // White's starting checker has been pinned and black's is safe: black wins
+        if (whiteHome.top !== whiteHome.bot && blackHome.bot !== Player.black) return true;
+        // Same as above, but reversed: white wins
+        if (blackHome.top !== blackHome.bot && whiteHome.bot !== Player.white) return true;
+        return false;
+    },
 });
 
 exports.Board = Plakoto;
