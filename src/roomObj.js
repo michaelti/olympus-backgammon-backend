@@ -20,12 +20,9 @@ exports.Room = () => ({
 
     initGame(type) {
         // Game type selector
-        if (type === Variant.plakoto) {
-            this.board = plakoto.Board();
-            this.variant = Variant.plakoto;
-        } else {
-            console.error("Only plakoto is currently available");
-        }
+        if (type === Variant.plakoto) this.board = plakoto.Board();
+        else console.error("Only plakoto is currently available");
+        this.variant = type;
         this.board.initGame();
         this.moves = new Array();
         this.step = Step.startingRoll;
