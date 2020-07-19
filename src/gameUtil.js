@@ -19,7 +19,7 @@ exports.Move = (from, to) => ({ from, to });
 
 exports.Board = () => ({
     turn: Player.neither,
-    winner: Player.neither,
+    winner: null,
     off: { [Player.white]: 0, [Player.black]: 0 },
     bar: { [Player.white]: 0, [Player.black]: 0 },
     pips: Array.from({ length: 25 }, Pip),
@@ -57,6 +57,7 @@ exports.Board = () => ({
     isGameWon() {
         if (this.off[this.turn] === 15) {
             this.winner = this.turn;
+            this.turn = Player.neither;
             return true;
         }
         return false;
