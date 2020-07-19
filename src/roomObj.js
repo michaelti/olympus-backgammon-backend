@@ -90,7 +90,9 @@ exports.Room = () => ({
                 this.boardBackup = clone(this.board);
                 this.moves = [];
             }
-        } else this.gameUndoTurn();
+        } else {
+            this.gameUndoTurn();
+        }
     },
 
     gameUndoTurn() {

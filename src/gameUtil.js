@@ -18,7 +18,7 @@ exports.clamp = (to) => (to < 0 ? 0 : to > 25 ? 25 : to);
 exports.Move = (from, to) => ({ from, to });
 
 exports.Board = () => ({
-    turn: Player.neither,
+    turn: null,
     winner: null,
     off: { [Player.white]: 0, [Player.black]: 0 },
     bar: { [Player.white]: 0, [Player.black]: 0 },

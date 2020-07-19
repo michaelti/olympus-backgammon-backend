@@ -148,7 +148,6 @@ const Plakoto = () => ({
     },
 
     // Is the board in a state where the game is won?
-    // Returns the winner of the game or null
     isGameWon() {
         const home = { [Player.white]: this.pips[1], [Player.black]: this.pips[24] };
 
@@ -169,7 +168,7 @@ const Plakoto = () => ({
             this.turn = this.neither;
             return true;
         }
-        return null;
+        return false;
     },
 });
 
