@@ -80,19 +80,15 @@ const Portes = () => ({
             if (this.turn === Player.white) this.off[Player.white]++;
             if (this.turn === Player.black) this.off[Player.black]++;
         } else {
-            if (this.pips[to].size === 0) {
-                this.pips[to].bot = this.turn;
-            }
+            if (this.pips[to].bot === this.otherPlayer()) this.bar[this.otherPlayer()]++;
+            else this.pips[to].size++;
             this.pips[to].top = this.turn;
-            this.pips[to].size++;
+            this.pips[to].bot = this.turn;
         }
 
         // Handle dice. NOTE: this will only work for 2 distinct values or 4 identical values
-        if (this.dice[0] >= Math.abs(from - to)) {
-            this.dice.shift();
-        } else {
-            this.dice.pop();
-        }
+        if (this.dice[0] >= Math.abs(from - to)) this.dice.shift();
+        else this.dice.pop();
     },
 
     // Returns 2D array
@@ -103,7 +99,7 @@ const Portes = () => ({
         for (const die of uniqueDice) {
             for (let pipIndex = 1; pipIndex <= 24; pipIndex++) {
                 if (this.pips[pipIndex].top === this.turn) {
-                    let currentMove = Move(pipIndex, clamp(this.turn * die + Number(pipIndex)));
+                    let currentMove = Move(pipIndex, clamp(this.turn * die + pipIndex));
                     if (this.isMoveValid(currentMove.from, currentMove.to)) {
                         // deep copy game board using ramda
                         let newBoard = clone(this);
