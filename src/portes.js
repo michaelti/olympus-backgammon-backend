@@ -25,10 +25,17 @@ const Portes = () => ({
     // return:  Returns a boolean
     isMoveValid(from, to) {
         to = clamp(to);
-        if (this.pips[from].top !== this.turn) return false;
+        //if (this.pips[from].top !== this.turn) return false;
+
+        // Entering the board
+        if (this.bar[this.turn] > 0) {
+            if (from !== 25 && from !== 0) return false;
+            if (this.pips[to].top !== this.turn && this.pips[to].size > 1) return false;
+            if (!this.dice.includes(this.turn * (to - from))) return false;
+        }
 
         // Bearing off
-        if (to === 25 || to === 0) {
+        else if (to === 25 || to === 0) {
             if (this.turn === Player.white && from < 19) return false;
             if (this.turn === Player.black && from > 6) return false;
             // Range of all pips excluding the current player's home quadrant
@@ -66,13 +73,16 @@ const Portes = () => ({
         to = clamp(to);
 
         // From pip
-        if (this.pips[from].size === 1) {
+        if (this.off[this.turn] > 0) {
+            this.off[this.turn]--;
+        } else if (this.pips[from].size === 1) {
             this.pips[from].top = Player.neither;
             this.pips[from].bot = Player.neither;
+            this.pips[from].size--;
         } else if (this.pips[from].size === 2 && this.pips[from].top !== this.pips[from].bot) {
             this.pips[from].top = this.pips[from].bot;
+            this.pips[from].size--;
         }
-        this.pips[from].size--;
 
         // To pip
         if (to === 0 || to === 25) {
@@ -80,6 +90,7 @@ const Portes = () => ({
             if (this.turn === Player.white) this.off[Player.white]++;
             if (this.turn === Player.black) this.off[Player.black]++;
         } else {
+            // Sending opponent to the bar
             if (this.pips[to].bot === this.otherPlayer()) this.bar[this.otherPlayer()]++;
             else this.pips[to].size++;
             this.pips[to].top = this.turn;
