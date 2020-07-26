@@ -22,7 +22,7 @@ exports.Board = () => ({
     winner: null,
     off: { [Player.white]: 0, [Player.black]: 0 },
     bar: { [Player.white]: 0, [Player.black]: 0 },
-    pips: new Array(25).fill().map(() => Pip()),
+    pips: new Array(26).fill().map(() => Pip()),
     diceRolled: new Array(2),
     dice: new Array(2),
 

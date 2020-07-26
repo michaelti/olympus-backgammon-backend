@@ -9,6 +9,8 @@ const Portes = () => ({
     // Implement Portes-specific methods and variables
     // Initialize the board for a game of portes
     initGame() {
+        this.pips[25] = Pip(0, Player.black);
+        this.bar[Player.black] = this.pips[25];
         this.pips[24] = Pip(2, Player.black); // Black moves towards pip 1 (decreasing)
         this.pips[19] = Pip(5, Player.white);
         this.pips[17] = Pip(3, Player.white);
@@ -17,6 +19,8 @@ const Portes = () => ({
         this.pips[8] = Pip(3, Player.black);
         this.pips[6] = Pip(5, Player.black);
         this.pips[1] = Pip(2, Player.white); // White moves towards pip 24 (increasing)
+        this.pips[0] = Pip(0, Player.white);
+        this.bar[Player.white] = this.pips[0];
     },
 
     // Is the move valid?
@@ -28,7 +32,7 @@ const Portes = () => ({
         //if (this.pips[from].top !== this.turn) return false;
 
         // Entering the board
-        if (this.bar[this.turn] > 0) {
+        if (this.bar[this.turn].size > 0) {
             if (from !== 25 && from !== 0) return false;
             if (this.pips[to].top !== this.turn && this.pips[to].size > 1) return false;
             if (!this.dice.includes(this.turn * (to - from))) return false;
@@ -73,16 +77,15 @@ const Portes = () => ({
         to = clamp(to);
 
         // From pip
-        if (this.off[this.turn] > 0) {
-            this.off[this.turn]--;
+        if (this.bar[this.turn].size > 0) {
+            // Don't change owner of the bar
         } else if (this.pips[from].size === 1) {
             this.pips[from].top = Player.neither;
             this.pips[from].bot = Player.neither;
-            this.pips[from].size--;
         } else if (this.pips[from].size === 2 && this.pips[from].top !== this.pips[from].bot) {
             this.pips[from].top = this.pips[from].bot;
-            this.pips[from].size--;
         }
+        this.pips[from].size--;
 
         // To pip
         if (to === 0 || to === 25) {
@@ -91,7 +94,7 @@ const Portes = () => ({
             if (this.turn === Player.black) this.off[Player.black]++;
         } else {
             // Sending opponent to the bar
-            if (this.pips[to].bot === this.otherPlayer()) this.bar[this.otherPlayer()]++;
+            if (this.pips[to].bot === this.otherPlayer()) this.bar[this.otherPlayer()].size++;
             else this.pips[to].size++;
             this.pips[to].top = this.turn;
             this.pips[to].bot = this.turn;
@@ -108,7 +111,7 @@ const Portes = () => ({
         let ret = new Array();
         let uniqueDice = this.dice[0] === this.dice[1] ? [this.dice[0]] : this.dice;
         for (const die of uniqueDice) {
-            for (let pipIndex = 1; pipIndex <= 24; pipIndex++) {
+            for (let pipIndex = 0; pipIndex <= 25; pipIndex++) {
                 if (this.pips[pipIndex].top === this.turn) {
                     let currentMove = Move(pipIndex, clamp(this.turn * die + pipIndex));
                     if (this.isMoveValid(currentMove.from, currentMove.to)) {
