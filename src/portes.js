@@ -10,7 +10,6 @@ const Portes = () => ({
     // Initialize the board for a game of portes
     initGame() {
         this.pips[25] = Pip(0, Player.black);
-        this.bar[Player.black] = this.pips[25];
         this.pips[24] = Pip(2, Player.black); // Black moves towards pip 1 (decreasing)
         this.pips[19] = Pip(5, Player.white);
         this.pips[17] = Pip(3, Player.white);
@@ -20,6 +19,9 @@ const Portes = () => ({
         this.pips[6] = Pip(5, Player.black);
         this.pips[1] = Pip(2, Player.white); // White moves towards pip 24 (increasing)
         this.pips[0] = Pip(0, Player.white);
+
+        // Aliases so we can access the bar using a Player as the key
+        this.bar[Player.black] = this.pips[25];
         this.bar[Player.white] = this.pips[0];
     },
 
@@ -78,7 +80,7 @@ const Portes = () => ({
 
         // From pip
         if (this.bar[this.turn].size > 0) {
-            // Don't change owner of the bar
+            // Don't change owner of the bar ever
         } else if (this.pips[from].size === 1) {
             this.pips[from].top = Player.neither;
             this.pips[from].bot = Player.neither;
