@@ -7,6 +7,8 @@ const Portes = () => ({
     ...Board(),
 
     // Implement Portes-specific methods and variables
+    bar: new Object(),
+
     // Initialize the board for a game of portes
     initGame() {
         this.pips[25] = Pip(0, Player.black);
@@ -31,7 +33,7 @@ const Portes = () => ({
     // return:  Returns a boolean
     isMoveValid(from, to) {
         to = clamp(to);
-        //if (this.pips[from].top !== this.turn) return false;
+        if (this.pips[from].top !== this.turn) return false;
 
         // Entering the board
         if (this.bar[this.turn].size > 0) {
@@ -39,7 +41,6 @@ const Portes = () => ({
             if (this.pips[to].top !== this.turn && this.pips[to].size > 1) return false;
             if (!this.dice.includes(this.turn * (to - from))) return false;
         }
-
         // Bearing off
         else if (to === 25 || to === 0) {
             if (this.turn === Player.white && from < 19) return false;
