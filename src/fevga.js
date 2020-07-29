@@ -23,6 +23,8 @@ const Fevga = () => ({
 
         // Bearing off
         if (to === 25 || to === 0) {
+            console.error("Bearing off is not implemented");
+            /*
             if (this.turn === Player.white && from < 19) return false;
             if (this.turn === Player.black && from > 6) return false;
             // Range of all pips excluding the current player's home quadrant
@@ -45,12 +47,14 @@ const Fevga = () => ({
                     return false;
                 }
             }
+            */
         }
         // Standard move
         else {
             if (from < 1 || from > 24 || to < 1 || to > 24) return false;
-            if (this.pips[to].top !== this.turn && this.pips[to].size > 1) return false;
-            if (!this.dice.includes(this.turn * (to - from))) return false;
+            if (this.pips[to].top == this.otherPlayer()) return false;
+            if (to > from) to -= 24;
+            if (!this.dice.includes(from - to)) return false;
         }
 
         return true;
@@ -121,6 +125,7 @@ const Fevga = () => ({
 
     // Validates a turn of 0–4 moves
     isTurnValid(moves) {
+        /*
         try {
             let maxTurnLength = 0;
             const possibleTurns = this.allPossibleTurns();
@@ -144,6 +149,7 @@ const Fevga = () => ({
             // Code optimization when there's a possible 4 move turn
             if (moves.length !== 4) return false;
         }
+        */
         return true;
     },
 
