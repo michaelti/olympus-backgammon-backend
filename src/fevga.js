@@ -53,6 +53,8 @@ const Fevga = () => ({
         else {
             if (from < 1 || from > 24 || to < 1 || to > 24) return false;
             if (this.pips[to].top == this.otherPlayer()) return false;
+            if (this.turn === Player.white && from >= 13 && to <= 12) return false;
+            if (this.turn === Player.black && from <= 12 && to >= 13) return false;
             if (to > from) to -= 24;
             if (!this.dice.includes(from - to)) return false;
         }
@@ -67,8 +69,6 @@ const Fevga = () => ({
         if (this.pips[from].size === 1) {
             this.pips[from].top = Player.neither;
             this.pips[from].bot = Player.neither;
-        } else if (this.pips[from].size === 2 && this.pips[from].top !== this.pips[from].bot) {
-            this.pips[from].top = this.pips[from].bot;
         }
         this.pips[from].size--;
 
@@ -79,18 +79,15 @@ const Fevga = () => ({
             if (this.turn === Player.black) this.off[Player.black]++;
         } else {
             if (this.pips[to].size === 0) {
+                this.pips[to].top = this.turn;
                 this.pips[to].bot = this.turn;
             }
-            this.pips[to].top = this.turn;
             this.pips[to].size++;
         }
 
         // Handle dice. NOTE: this will only work for 2 distinct values or 4 identical values
-        if (this.dice[0] >= Math.abs(from - to)) {
-            this.dice.shift();
-        } else {
-            this.dice.pop();
-        }
+        if (this.dice[0] >= Math.abs(from - to)) this.dice.shift();
+        else this.dice.pop();
     },
 
     // Returns 2D array
@@ -101,7 +98,7 @@ const Fevga = () => ({
         for (const die of uniqueDice) {
             for (let pipIndex = 1; pipIndex <= 24; pipIndex++) {
                 if (this.pips[pipIndex].top === this.turn) {
-                    let currentMove = Move(pipIndex, clamp(this.turn * die + Number(pipIndex)));
+                    let currentMove = Move(pipIndex, clamp(this.turn * die + pipIndex));
                     if (this.isMoveValid(currentMove.from, currentMove.to)) {
                         // deep copy game board using ramda
                         let newBoard = clone(this);
