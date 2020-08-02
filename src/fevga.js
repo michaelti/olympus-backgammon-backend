@@ -1,6 +1,7 @@
 const { Board, Pip, Move, Player, clamp } = require("./gameUtil");
 const clone = require("ramda.clone");
 const { range } = require("./util");
+const State = Object.freeze({ start: 1, firstAway: 2, default: 3 });
 
 const Fevga = () => ({
     // Inherit from generic board
@@ -8,6 +9,8 @@ const Fevga = () => ({
 
     // Implement Fevga-specific methods and variables
     // Initialize the board for a game of fevga
+    state: { [Player.white]: State.start, [Player.black]: State.start },
+
     initGame() {
         this.pips[24] = Pip(15, Player.black); // Black moves towards pip 1 (decreasing)
         this.pips[12] = Pip(15, Player.white); // White moves towards pip 13 (decreasing)
@@ -21,16 +24,22 @@ const Fevga = () => ({
         to = clamp(to);
         if (this.pips[from].top !== this.turn) return false;
 
+        // You can't move from your big pile until you move past the other player's big pile
+        if (this.state[this.turn] === State.firstAway) {
+            if (from === 12 || from === 24) return false;
+        }
+
         // Bearing off
         if (to === 25 || to === 0) {
+            if (to === 25) to = 12;
             console.error("Bearing off is not implemented");
-            /*
-            if (this.turn === Player.white && from < 19) return false;
+
+            if (this.turn === Player.white && (from > 18 || from < 13)) return false;
             if (this.turn === Player.black && from > 6) return false;
             // Range of all pips excluding the current player's home quadrant
-            const nonHomePips = this.turn === Player.white ? range(1, 18) : range(7, 24);
+            const nonHomePips = this.turn === Player.white ? range(18, 35) : range(6, 23); // 1–12, 19–24 : 7–24
             for (let i of nonHomePips) {
-                if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn) return false;
+                if (this.pips[(i % 24) + 1].top === this.turn) return false;
             }
             // If bearing off from an non-exact number of pips
             if (!this.dice.includes(Math.abs(from - to))) {
@@ -38,7 +47,7 @@ const Fevga = () => ({
                 if (this.dice[0] > Math.abs(from - to) || this.dice[1] > Math.abs(from - to)) {
                     // Range of pips in the player's home quadrant that are further away than the pip they are trying to bear off of
                     const farHomePips =
-                        this.turn === Player.white ? range(19, from - 1) : range(from + 1, 6);
+                        this.turn === Player.white ? range(from + 1, 18) : range(from + 1, 6);
                     for (let i of farHomePips) {
                         if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn)
                             return false;
@@ -47,7 +56,6 @@ const Fevga = () => ({
                     return false;
                 }
             }
-            */
         }
         // Standard move
         else {
@@ -73,11 +81,9 @@ const Fevga = () => ({
         this.pips[from].size--;
 
         // To pip
-        if (to === 0 || to === 25) {
-            // Bearing off
-            if (this.turn === Player.white) this.off[Player.white]++;
-            if (this.turn === Player.black) this.off[Player.black]++;
-        } else {
+        // Bearing off
+        if (to === 0 || to === 25) this.off[this.turn]++;
+        else {
             if (this.pips[to].size === 0) {
                 this.pips[to].top = this.turn;
                 this.pips[to].bot = this.turn;
@@ -88,6 +94,17 @@ const Fevga = () => ({
         // Handle dice. NOTE: this will only work for 2 distinct values or 4 identical values
         if (this.dice[0] >= Math.abs(from - to)) this.dice.shift();
         else this.dice.pop();
+
+        // Handle game state
+        if (this.state[this.turn] === State.start) this.state[this.turn]++;
+        else if (this.state[this.turn] === State.firstAway) {
+            if (
+                (this.turn === Player.white && to > 12) ||
+                (this.turn === Player.black && to < 13)
+            ) {
+                this.state[this.turn]++;
+            }
+        }
     },
 
     // Returns 2D array
