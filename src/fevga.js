@@ -94,7 +94,8 @@ const Fevga = () => ({
         }
 
         // Handle dice. NOTE: this will only work for 2 distinct values or 4 identical values
-        if (this.dice[0] >= Math.abs(from - to)) this.dice.shift();
+        const fevgaTo = to > from ? to - 24 : to; // For wrapping around the right edge
+        if (this.dice[0] >= from - fevgaTo) this.dice.shift();
         else this.dice.pop();
 
         // Handle game state
@@ -117,7 +118,9 @@ const Fevga = () => ({
         for (const die of uniqueDice) {
             for (let pipIndex = 1; pipIndex <= 24; pipIndex++) {
                 if (this.pips[pipIndex].top === this.turn) {
-                    let currentMove = Move(pipIndex, clamp(this.turn * die + pipIndex));
+                    let temp = pipIndex - die;
+                    if (this.turn === Player.white && temp < 1) temp += 24;
+                    let currentMove = Move(pipIndex, clamp(temp)); // TODO: fix this
                     if (this.isMoveValid(currentMove.from, currentMove.to)) {
                         // deep copy game board using ramda
                         let newBoard = clone(this);
@@ -141,7 +144,6 @@ const Fevga = () => ({
 
     // Validates a turn of 0–4 moves
     isTurnValid(moves) {
-        /*
         try {
             let maxTurnLength = 0;
             const possibleTurns = this.allPossibleTurns();
@@ -152,7 +154,7 @@ const Fevga = () => ({
             if (maxTurnLength !== moves.length) return false;
             // Validate single move turn uses the largest dice value possible
             if (maxTurnLength === 1 && this.dice.length === 2) {
-                const moveDistance = (m) => Math.abs(m.from - m.to);
+                const moveDistance = (m) => m.from - m.to;
                 // if the supplied move matches the smaller dice
                 // then check if there's a possible move with the larger dice
                 if (moveDistance(moves[0]) === this.dice[0]) {
@@ -165,7 +167,6 @@ const Fevga = () => ({
             // Code optimization when there's a possible 4 move turn
             if (moves.length !== 4) return false;
         }
-        */
         return true;
     },
 
