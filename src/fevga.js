@@ -82,8 +82,10 @@ const Fevga = () => ({
 
         // To pip
         // Bearing off
-        if (to === 0 || to === 25) this.off[this.turn]++;
-        else {
+        if (to === 0 || to === 25) {
+            this.off[this.turn]++;
+            if (to === 25) to = 12;
+        } else {
             if (this.pips[to].size === 0) {
                 this.pips[to].top = this.turn;
                 this.pips[to].bot = this.turn;
