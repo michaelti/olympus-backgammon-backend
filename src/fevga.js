@@ -8,9 +8,9 @@ const Fevga = () => ({
     ...Board(),
 
     // Implement Fevga-specific methods and variables
-    // Initialize the board for a game of fevga
     state: { [Player.white]: State.start, [Player.black]: State.start },
 
+    // Initialize the board for a game of fevga
     initGame() {
         this.pips[24] = Pip(15, Player.black); // Black moves towards pip 1 (decreasing)
         this.pips[12] = Pip(15, Player.white); // White moves towards pip 13 (decreasing)
@@ -32,7 +32,6 @@ const Fevga = () => ({
         // Bearing off
         if (to === 25 || to === 0) {
             if (to === 25) to = 12;
-            console.error("Bearing off is not implemented");
 
             if (this.turn === Player.white && (from > 18 || from < 13)) return false;
             if (this.turn === Player.black && from > 6) return false;
@@ -60,9 +59,21 @@ const Fevga = () => ({
         // Standard move
         else {
             if (from < 1 || from > 24 || to < 1 || to > 24) return false;
-            if (this.pips[to].top == this.otherPlayer()) return false;
+            if (this.pips[to].top === this.otherPlayer()) return false;
             if (this.turn === Player.white && from >= 13 && to <= 12) return false;
             if (this.turn === Player.black && from <= 12 && to >= 13) return false;
+
+            // Don't allow player to block all home pips
+            const homePips = this.turn === Player.white ? range(7, 12) : range(19, 24);
+            const pipBackup = this.pips[to].top;
+            this.pips[to].top = this.turn; // See what would happen IF the player were to move there
+            let owned = 0;
+            for (const i of homePips) if (this.pips[i].top === this.turn) owned++;
+            this.pips[to].top = pipBackup; // Restore original board state
+            if (owned >= 6) return false;
+
+            // Both players move in the same direction (decreasing). The exception is when we wrap
+            // around the edge of the board, we jump by 24 (i.e. 3, 2, 1, 24, 23, 22)
             if (to > from) to -= 24;
             if (!this.dice.includes(from - to)) return false;
         }
@@ -81,8 +92,8 @@ const Fevga = () => ({
         this.pips[from].size--;
 
         // To pip
-        // Bearing off
         if (to === 0 || to === 25) {
+            // Bearing off
             this.off[this.turn]++;
             if (to === 25) to = 12;
         } else {
