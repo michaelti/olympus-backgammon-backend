@@ -59,7 +59,7 @@ const Fevga = () => ({
         // Standard move
         else {
             if (from < 1 || from > 24 || to < 1 || to > 24) return false;
-            if (this.pips[to].top === this.otherPlayer()) return false;
+            if (this.pips[to].top !== this.turn && this.pips[to].size > 0) return false;
             if (this.turn === Player.white && from >= 13 && to <= 12) return false;
             if (this.turn === Player.black && from <= 12 && to >= 13) return false;
 
