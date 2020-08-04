@@ -130,8 +130,11 @@ const Fevga = () => ({
             for (let pipIndex = 1; pipIndex <= 24; pipIndex++) {
                 if (this.pips[pipIndex].top === this.turn) {
                     let temp = pipIndex - die;
-                    if (this.turn === Player.white && temp < 1) temp += 24;
-                    let currentMove = Move(pipIndex, clamp(temp)); // TODO: fix this
+                    if (this.turn === Player.white) {
+                        if (pipIndex >= 13 && temp <= 12) temp = 25;
+                        if (temp < 1) temp += 24;
+                    }
+                    let currentMove = Move(pipIndex, clamp(temp));
                     if (this.isMoveValid(currentMove.from, currentMove.to)) {
                         // deep copy game board using ramda
                         let newBoard = clone(this);
