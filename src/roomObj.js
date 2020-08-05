@@ -20,6 +20,7 @@ exports.Room = () => ({
     step: Step.setup,
 
     initGame(type) {
+        const prevWinner = this.board ? this.board.winner : null;
         // Game type selector
         if (type === Variant.portes) this.board = portes.Board();
         else if (type === Variant.plakoto) this.board = plakoto.Board();
@@ -27,8 +28,8 @@ exports.Room = () => ({
         this.variant = type;
         this.board.initGame();
         this.moves = new Array();
-        // TODO: fallback to initial dice if the game was a tie (edge case)
-        if (this.board && this.board.winner !== null) this.startGame(this.board.winner);
+        // TODO: fallback to initial dice or re-roll if the game was a tie (edge case)
+        if (prevWinner !== null) this.startGame(prevWinner);
         else this.step = Step.startingRoll;
     },
 
