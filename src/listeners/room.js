@@ -58,7 +58,7 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
             // Broadcast all relevant room properties to everyone in the room
             io.sockets.in(socket.currentRoom).emit("room/update-room", {
                 step: rooms[socket.currentRoom].step,
-                startingRolls: rooms[socket.currentRoom].dice,
+                dice: rooms[socket.currentRoom].dice,
                 variant: rooms[socket.currentRoom].variant,
                 board: rooms[socket.currentRoom].board,
             });
@@ -94,7 +94,7 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
         // Broadcast the relevant room properties to everyone in the room
         io.sockets.in(socket.currentRoom).emit("room/update-room", {
             step: rooms[socket.currentRoom].step,
-            startingRolls: rooms[socket.currentRoom].dice,
+            dice: rooms[socket.currentRoom].dice,
             board: rooms[socket.currentRoom].board,
         });
 
