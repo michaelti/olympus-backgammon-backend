@@ -27,7 +27,7 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
             .emit("room/update-room", { board: rooms[socket.currentRoom].board });
 
         // Broadcast the room step if the game has ended
-        if (rooms[socket.currentRoom].board.winner !== null) {
+        if (rooms[socket.currentRoom].board.winner) {
             io.sockets.in(socket.currentRoom).emit("room/update-room", {
                 step: rooms[socket.currentRoom].step,
             });
