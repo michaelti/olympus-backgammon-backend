@@ -27,7 +27,8 @@ exports.Room = () => ({
         this.variant = type;
         this.board.initGame();
         this.moves = new Array();
-        if (this.board.winner) this.startGame(this.board.winner);
+        // TODO: fallback to initial dice if the game was a tie (edge case)
+        if (this.board && this.board.winner !== null) this.startGame(this.board.winner);
         else this.step = Step.startingRoll;
     },
 
