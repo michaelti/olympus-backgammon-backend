@@ -58,7 +58,7 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
             // Broadcast the board to everyone in the room
             io.sockets
                 .in(socket.currentRoom)
-                .emit("game/update-board", rooms[socket.currentRoom].board);
+                .emit("room/update-room", { board: rooms[socket.currentRoom].board });
 
             // Broadcast the room step to everyone in the room
             io.sockets.in(socket.currentRoom).emit("room/update-room", {
@@ -89,7 +89,7 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
         // Broadcast the board to everyone in the room
         io.sockets
             .in(socket.currentRoom)
-            .emit("game/update-board", rooms[socket.currentRoom].board);
+            .emit("room/update-room", { board: rooms[socket.currentRoom].board });
     });
 
     // Room event: roll to go first
@@ -110,7 +110,7 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
         // Broadcast the board to everyone in the room
         io.sockets
             .in(socket.currentRoom)
-            .emit("game/update-board", rooms[socket.currentRoom].board);
+            .emit("room/update-room", { board: rooms[socket.currentRoom].board });
 
         rooms[socket.currentRoom].startingRollCleanup();
     });
