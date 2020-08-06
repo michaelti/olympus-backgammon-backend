@@ -16,7 +16,7 @@ exports.Room = () => ({
     variant: null,
     moves: null,
     players: {},
-    dice: { [Player.white]: undefined, [Player.black]: undefined },
+    dice: { [Player.white]: undefined, [Player.black]: undefined, draw: null },
     step: Step.setup,
 
     initGame(type) {
@@ -37,23 +37,27 @@ exports.Room = () => ({
         this.board.rollDice();
         this.boardBackup = clone(this.board);
         this.step = Step.game;
+        this.dice = {
+            [Player.white]: undefined,
+            [Player.black]: undefined,
+            draw: null,
+        };
     },
 
     startingRoll(player) {
         if (!this.dice[player]) this.dice[player] = rollDie();
 
-        // If both players have rolled and they are different values
+        // If both players have rolled
         if (this.dice[Player.white] > this.dice[Player.black]) {
             this.startGame(Player.white);
         } else if (this.dice[Player.black] > this.dice[Player.white]) {
             this.startGame(Player.black);
-        }
-    },
-
-    // If the players roll the same number, clear the saved values so they can roll again
-    startingRollCleanup() {
-        if (this.dice[Player.white] === this.dice[Player.black]) {
-            this.dice = { [Player.white]: undefined, [Player.black]: undefined };
+        } else if (this.dice[Player.white] === this.dice[Player.black]) {
+            this.dice = {
+                [Player.white]: undefined,
+                [Player.black]: undefined,
+                draw: this.dice[player],
+            };
         }
     },
 
