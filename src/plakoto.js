@@ -9,12 +9,8 @@ const Plakoto = () => ({
     // Implement Plakoto-specific methods and variables
     // Initialize the board for a game of plakoto
     initGame() {
-        this.pips[24] = Pip(2, Player.black); // Black moves towards pip 1 (decreasing)
-        this.pips[1] = Pip(2, Player.white); // White moves towards pip 24 (increasing)
-        this.pips[24].top = Player.white;
-        this.pips[22] = Pip(2, Player.black);
-        this.pips[1].top = Player.black;
-        this.off[Player.white] = 14;
+        this.pips[24] = Pip(15, Player.black); // Black moves towards pip 1 (decreasing)
+        this.pips[1] = Pip(15, Player.white); // White moves towards pip 24 (increasing)
     },
 
     // Is the move valid?
