@@ -70,7 +70,7 @@ const Fevga = () => ({
             let owned = 0;
             for (const i of homePips) if (this.pips[i].top === this.turn) owned++;
             this.pips[to].top = pipBackup; // Restore original board state
-            if (owned >= 6) return false;
+            if (owned >= 6 && this.pips[from].size > 1) return false;
 
             // Both players move in the same direction (decreasing). The exception is when we wrap
             // around the edge of the board, we jump by 24 (i.e. 3, 2, 1, 24, 23, 22)
