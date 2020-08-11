@@ -183,30 +183,6 @@ const Fevga = () => ({
         }
         return true;
     },
-
-    // Is the board in a state where the game is won?
-    isGameWon() {
-        const home = { [Player.white]: this.pips[1], [Player.black]: this.pips[24] };
-
-        // Both player's starting checkers have been trapped: game is a draw
-        if (this.pips[1].top !== this.pips[1].bot && this.pips[24].top !== this.pips[24].bot)
-            this.winner = Player.neither;
-        // Player has beared off all of their checkers
-        else if (this.off[this.turn] === 15) this.winner = this.turn;
-        // If other player's starting checker has been pinned and current player's is safe
-        else if (
-            home[this.otherPlayer()].top !== home[this.otherPlayer()].bot &&
-            home[this.turn].bot !== this.turn
-        ) {
-            this.winner = this.turn;
-        }
-
-        if (this.winner !== null) {
-            this.turn = Player.neither;
-            return true;
-        }
-        return false;
-    },
 });
 
 exports.Board = Fevga;
