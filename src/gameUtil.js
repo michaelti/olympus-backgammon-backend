@@ -24,6 +24,7 @@ exports.Board = () => ({
     pips: new Array(26).fill().map(() => Pip()),
     diceRolled: new Array(2),
     dice: new Array(2),
+    recentMove: {},
 
     rollDice() {
         this.diceRolled = [rollDie(), rollDie()];

@@ -87,6 +87,7 @@ exports.Room = () => ({
     gameMove(from, to) {
         if (this.board.tryMove(from, to)) {
             this.moves.push(Move(from, to));
+            this.board.recentMove = Move(from, to);
         }
     },
 
