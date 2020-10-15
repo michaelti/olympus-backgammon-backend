@@ -47,7 +47,6 @@ exports.Board = () => ({
     // Returns true if the move was successful
     tryMove(from, to) {
         if (this.isMoveValid(from, to)) {
-            this.doMove(from, to);
             return true;
         }
         return false;
