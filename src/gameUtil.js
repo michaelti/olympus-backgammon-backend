@@ -44,14 +44,6 @@ exports.Board = () => ({
         return Player.neither;
     },
 
-    // Returns true if the move was successful
-    tryMove(from, to) {
-        if (this.isMoveValid(from, to)) {
-            return true;
-        }
-        return false;
-    },
-
     // Is the board in a state where either player has won?
     isGameWon() {
         if (this.off[this.turn] === 15) {

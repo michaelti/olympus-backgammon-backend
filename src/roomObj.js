@@ -85,7 +85,7 @@ exports.Room = () => ({
     },
 
     gameMove(from, to) {
-        if (this.board.tryMove(from, to)) {
+        if (this.board.isMoveValid(from, to)) {
             this.boardBackups.push(clone(this.board));
             this.board.doMove(from, to);
             this.moves.push(Move(from, to));
