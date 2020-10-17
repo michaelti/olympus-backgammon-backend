@@ -2,7 +2,7 @@ const clone = require("ramda.clone");
 const portes = require("./portes");
 const plakoto = require("./plakoto");
 const fevga = require("./fevga");
-const { Player, Variant, Move, rollDie } = require("./gameUtil");
+const { Player, Variant, reverseMove, rollDie } = require("./gameUtil");
 
 const Step = Object.freeze({
     setup: 1,
@@ -88,8 +88,7 @@ exports.Room = () => ({
         if (this.board.isMoveValid(from, to)) {
             this.boardBackups.push(clone(this.board));
             this.board.doMove(from, to);
-            this.moves.push(Move(from, to));
-            this.board.recentMove = Move(from, to);
+            this.moves.push(this.board.recentMove);
         }
     },
 
@@ -98,7 +97,8 @@ exports.Room = () => ({
             const move = this.moves.pop();
             const boardBackup = this.boardBackups.pop();
             this.board = clone(boardBackup);
-            this.board.recentMove = Move(move.to, move.from);
+            this.board.recentMove = reverseMove(move);
+            if (move.subMove) this.board.recentMove.subMove = reverseMove(move.subMove);
         }
     },
 
@@ -117,7 +117,7 @@ exports.Room = () => ({
                 this.board.recentMove = {};
             }
         } else {
-            // Todo: Send a message with why this turn is invalid.
+            // TODO: Send a message with why this turn is invalid.
         }
     },
 });

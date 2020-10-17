@@ -16,6 +16,7 @@ exports.Variant = Object.freeze({
 exports.clamp = (to) => (to < 0 ? 0 : to > 25 ? 25 : to);
 
 exports.Move = (from, to) => ({ from, to });
+exports.reverseMove = (move) => ({ from: move.to, to: move.from });
 
 exports.Board = () => ({
     turn: null,
