@@ -30,6 +30,7 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
         if (rooms[socket.currentRoom].board.winner !== null) {
             io.sockets.in(socket.currentRoom).emit("room/update-room", {
                 step: rooms[socket.currentRoom].step,
+                score: rooms[socket.currentRoom].score,
             });
         }
     });
