@@ -1,3 +1,6 @@
+const { Random, MersenneTwister19937 } = require("random-js");
+const random = new Random(MersenneTwister19937.autoSeed());
+
 // Enum-like object
 const Player = Object.freeze({
     neither: 0,
@@ -28,7 +31,7 @@ exports.Board = () => ({
     recentMove: {},
 
     rollDice() {
-        this.diceRolled = [rollDie(), rollDie()];
+        this.diceRolled = random.dice(6, 2);
 
         // Doubles
         if (this.diceRolled[0] === this.diceRolled[1])
@@ -64,7 +67,7 @@ const Pip = (size = 0, owner = Player.neither) => ({
     bot: owner,
 });
 
-const rollDie = () => Math.floor(Math.random() * 6) + 1;
+const rollDie = () => random.die(6);
 
 exports.Player = Player;
 exports.Pip = Pip;
