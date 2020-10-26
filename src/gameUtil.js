@@ -31,6 +31,7 @@ exports.Board = () => ({
     recentMove: {},
 
     rollDice() {
+        // Roll a 6-sided die, 2 times
         this.diceRolled = random.dice(6, 2);
 
         // Doubles
