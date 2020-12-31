@@ -162,10 +162,8 @@ const Fevga = () => ({
         // Validate turn length. Players must make as many moves as possible
         if (this.maxTurnLength !== moves.length) {
             // unless they have 14 checkers off and are bearing off their 15th (final)
-            if (!(this.off[this.turn] == 14 && (moves[0].to === 0 || moves[0].to === 25))) {
+            if (!(this.off[this.turn] == 14 && (moves[0].to === 0 || moves[0].to === 25)))
                 this.turnValidity = TurnMessage.invalidMoreMoves;
-                return false;
-            }
         }
         // Validate single move turn uses the largest dice value possible
         if (this.maxTurnLength === 1 && this.dice.length === 2) {
@@ -174,15 +172,12 @@ const Fevga = () => ({
             // then check if there's a possible move with the larger dice
             if (moveDistance(moves[0]) === this.dice[0]) {
                 for (let turn of this.possibleTurns) {
-                    if (moveDistance(turn[0]) === this.dice[1]) {
+                    if (moveDistance(turn[0]) === this.dice[1])
                         this.turnValidity = TurnMessage.invalidMoreMoves;
-                        return false;
-                    }
                 }
             }
         }
         this.turnValidity = TurnMessage.valid;
-        return true;
     },
 });
 

@@ -90,6 +90,8 @@ exports.Room = () => ({
             this.boardBackups.push(clone(this.board));
             this.board.doMove(from, to);
             this.moves.push(this.board.recentMove);
+            // Validate the whole turn by passing the array of moves to a function
+            this.board.isTurnValid(this.moves);
         }
     },
 
@@ -104,12 +106,9 @@ exports.Room = () => ({
     },
 
     gameApplyTurn() {
-        let points;
-        /* Validate the whole turn by passing the array of moves to a method
-         * If the turn is valid, end the player's turn
-         * Else, return an error and undo the partial turn */
-        if (this.boardBackups[0].isTurnValid(this.moves)) {
-            points = this.board.isGameWon();
+        // Frontend should ensure this function is only called if the turn is valid
+        if (this.board.turnValidity > 0) {
+            let points = this.board.isGameWon();
             if (points) {
                 this.score[this.board.winner] += points;
                 this.step = Step.setup;
@@ -120,8 +119,6 @@ exports.Room = () => ({
                 this.moves = [];
                 this.board.recentMove = {};
             }
-        } else {
-            // TODO: Send a message with why this turn is invalid.
         }
     },
 });
