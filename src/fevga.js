@@ -173,7 +173,7 @@ const Fevga = () => ({
             if (moveDistance(moves[0]) === this.dice[0]) {
                 for (let turn of this.possibleTurns) {
                     if (moveDistance(turn[0]) === this.dice[1])
-                        this.turnValidity = TurnMessage.invalidMoreMoves;
+                        this.turnValidity = TurnMessage.invalidLongerMove;
                 }
             }
         }
