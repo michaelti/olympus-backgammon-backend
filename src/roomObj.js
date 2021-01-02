@@ -91,7 +91,7 @@ exports.Room = () => ({
             this.board.doMove(from, to);
             this.moves.push(this.board.recentMove);
             // Validate the whole turn by passing the array of moves to a function
-            this.board.isTurnValid(this.moves);
+            this.board.turnValidity = this.boardBackups[0].turnValidator(this.moves);
         }
     },
 
