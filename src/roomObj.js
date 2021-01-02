@@ -90,7 +90,7 @@ exports.Room = () => ({
             this.boardBackups.push(clone(this.board));
             this.board.doMove(from, to);
             this.moves.push(this.board.recentMove);
-            // Validate the whole turn by passing the array of moves to a function
+            // Validate the whole turn by evaluating the staged moves on the original board
             this.board.turnValidity = this.boardBackups[0].turnValidator(this.moves);
         }
     },
@@ -105,10 +105,11 @@ exports.Room = () => ({
         }
     },
 
+    // Frontend should ensure this function is only called if the turn is valid
     gameApplyTurn() {
-        // Frontend should ensure this function is only called if the turn is valid
+        // Valid turns are positive numbers; invalid turns are negative
         if (this.board.turnValidity > 0) {
-            let points = this.board.isGameWon();
+            const points = this.board.isGameWon();
             if (points) {
                 this.score[this.board.winner] += points;
                 this.step = Step.setup;

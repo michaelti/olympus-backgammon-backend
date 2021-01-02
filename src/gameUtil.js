@@ -73,7 +73,7 @@ exports.Board = () => ({
         this.turnValidity = TurnMessage.invalid;
         try {
             this.possibleTurns = this.allPossibleTurns();
-            for (let turn of this.possibleTurns) {
+            for (const turn of this.possibleTurns) {
                 if (turn.length > this.maxTurnLength) this.maxTurnLength = turn.length;
             }
             if (this.maxTurnLength === 0) this.turnValidity = TurnMessage.validZero;
@@ -103,9 +103,7 @@ exports.Board = () => ({
     },
 
     // Dummy function, must be implemented by each backgammon variant
-    allPossibleTurns() {
-        return null;
-    },
+    allPossibleTurns: () => null,
 });
 
 const Pip = (size = 0, owner = Player.neither) => ({
