@@ -2,7 +2,7 @@ const clone = require("ramda.clone");
 const portes = require("./portes");
 const plakoto = require("./plakoto");
 const fevga = require("./fevga");
-const { Player, Variant, reverseMove, rollDie } = require("./gameUtil");
+const { Board, Player, Variant, reverseMove, rollDie } = require("./gameUtil");
 
 const Step = Object.freeze({
     setup: 1,
@@ -12,7 +12,7 @@ const Step = Object.freeze({
 
 // Base Room object
 exports.Room = () => ({
-    board: null,
+    board: Board(),
     boardBackups: null,
     variant: null,
     moves: null,
