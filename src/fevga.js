@@ -122,7 +122,7 @@ const Fevga = () => ({
         }
     },
 
-    // Returns 2D array
+    // Returns 2D array of Move objects
     allPossibleTurns() {
         if (this.dice.length === 0) return [];
         let allTurns = new Array();
