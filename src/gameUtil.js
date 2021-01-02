@@ -92,7 +92,7 @@ exports.Board = () => ({
 
     // Is the board in a state where either player has won?
     // Returns the number of points won
-    isGameWon() {
+    isGameOver() {
         if (this.off[this.turn] === 15) {
             this.winner = this.turn;
             this.turn = Player.neither;
@@ -100,6 +100,34 @@ exports.Board = () => ({
             return this.off[this.otherPlayer(this.winner)] === 0 ? 2 : 1;
         }
         return 0;
+    },
+
+    // Returns the distance a checker travels in a move (1–6)
+    moveDistance(move) {
+        const dist = Math.abs(move.to - move.from);
+        return dist <= 6 ? dist : 24 - dist;
+    },
+
+    // Validates a turn of 0–4 moves
+    turnValidator(moves) {
+        // Validate turn length. Players must make as many moves as possible
+        if (this.maxTurnLength !== moves.length) {
+            // unless they have 14 checkers off and are bearing off their 15th (final)
+            if (!(this.off[this.turn] == 14 && (moves[0].to === 0 || moves[0].to === 25)))
+                return TurnMessage.invalidMoreMoves;
+        }
+        // Validate single move turn uses the largest dice value possible
+        if (this.maxTurnLength === 1 && this.dice.length === 2) {
+            // if the supplied move matches the smaller dice
+            // then check if there's a possible move with the larger dice
+            if (this.moveDistance(moves[0]) === this.dice[0]) {
+                for (const turn of this.possibleTurns) {
+                    if (this.moveDistance(turn[0]) === this.dice[1])
+                        return TurnMessage.invalidLongerMove;
+                }
+            }
+        }
+        return TurnMessage.valid;
     },
 
     // Dummy function, must be implemented by each backgammon variant

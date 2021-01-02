@@ -1,4 +1,4 @@
-const { Board, Pip, Move, Player, TurnMessage, clamp } = require("./gameUtil");
+const { Board, Pip, Move, Player, clamp } = require("./gameUtil");
 const clone = require("ramda.clone");
 const { range } = require("./util");
 
@@ -27,7 +27,7 @@ const Plakoto = () => ({
             if (this.turn === Player.black && from > 6) return false;
             // Range of all pips excluding the current player's home quadrant
             const nonHomePips = this.turn === Player.white ? range(1, 18) : range(7, 24);
-            for (let i of nonHomePips) {
+            for (const i of nonHomePips) {
                 if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn) return false;
             }
             // If bearing off from an non-exact number of pips
@@ -37,7 +37,7 @@ const Plakoto = () => ({
                     // Range of pips in the player's home quadrant that are further away than the pip they are trying to bear off of
                     const farHomePips =
                         this.turn === Player.white ? range(19, from - 1) : range(from + 1, 6);
-                    for (let i of farHomePips) {
+                    for (const i of farHomePips) {
                         if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn)
                             return false;
                     }
@@ -93,59 +93,36 @@ const Plakoto = () => ({
     // Returns 2D array
     allPossibleTurns() {
         if (this.dice.length === 0) return [];
-        let ret = new Array();
-        let uniqueDice = this.dice[0] === this.dice[1] ? [this.dice[0]] : this.dice;
+        let allTurns = new Array();
+        const uniqueDice = this.dice[0] === this.dice[1] ? [this.dice[0]] : this.dice;
         for (const die of uniqueDice) {
             for (let pipIndex = 1; pipIndex <= 24; pipIndex++) {
                 if (this.pips[pipIndex].top === this.turn) {
-                    let currentMove = Move(pipIndex, clamp(this.turn * die + Number(pipIndex)));
+                    const currentMove = Move(pipIndex, clamp(this.turn * die + Number(pipIndex)));
                     if (this.isMoveValid(currentMove.from, currentMove.to)) {
                         // deep copy game board using ramda
                         let newBoard = clone(this);
                         newBoard.doMove(currentMove.from, currentMove.to);
-                        let nextTurns = newBoard.allPossibleTurns();
+                        const nextTurns = newBoard.allPossibleTurns();
                         if (nextTurns.length) {
                             for (const nextMoves of nextTurns) {
-                                ret.push([currentMove, ...nextMoves]);
+                                allTurns.push([currentMove, ...nextMoves]);
                                 if ([currentMove, ...nextMoves].length === 4)
                                     throw "Possible turn of length 4 detected";
                             }
                         } else {
-                            ret.push([currentMove]);
+                            allTurns.push([currentMove]);
                         }
                     }
                 }
             }
         }
-        return ret;
+        return allTurns;
     },
 
-    // Validates a turn of 0–4 moves
-    turnValidator(moves) {
-        // Validate turn length. Players must make as many moves as possible
-        if (this.maxTurnLength !== moves.length) {
-            // unless they have 14 checkers off and are bearing off their 15th (final)
-            if (!(this.off[this.turn] == 14 && (moves[0].to === 0 || moves[0].to === 25)))
-                return TurnMessage.invalidMoreMoves;
-        }
-        // Validate single move turn uses the largest dice value possible
-        if (this.maxTurnLength === 1 && this.dice.length === 2) {
-            const moveDistance = (m) => Math.abs(m.from - m.to);
-            // if the supplied move matches the smaller dice
-            // then check if there's a possible move with the larger dice
-            if (moveDistance(moves[0]) === this.dice[0]) {
-                for (let turn of this.possibleTurns) {
-                    if (moveDistance(turn[0]) === this.dice[1])
-                        return TurnMessage.invalidLongerMove;
-                }
-            }
-        }
-        return TurnMessage.valid;
-    },
-
-    // Is the board in a state where the game is won?
+    // Is the board in a state where the game has just ended?
     // Returns the number of points won
-    isGameWon() {
+    isGameOver() {
         const home = { [Player.white]: this.pips[1], [Player.black]: this.pips[24] };
 
         // Both player's starting checkers have been trapped: game is a draw
