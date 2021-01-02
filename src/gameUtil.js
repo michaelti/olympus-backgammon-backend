@@ -41,6 +41,23 @@ exports.Board = () => ({
     maxTurnLength: 0,
     turnValidity: TurnMessage.invalid,
 
+    publicProperties() {
+        return {
+            turn: this.turn,
+            winner: this.winner,
+            off: this.off,
+            pips: this.pips,
+            diceRolled: this.diceRolled,
+            dice: this.dice,
+            recentMove: this.recentMove,
+            turnValidity: this.turnValidity,
+            // Portes properties
+            bar: this.bar,
+            // Fevga properties
+            state: this.state,
+        };
+    },
+
     rollDice() {
         // Roll a 6-sided die, 2 times
         this.diceRolled = random.dice(6, 2);
