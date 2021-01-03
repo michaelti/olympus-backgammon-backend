@@ -26,6 +26,11 @@ exports.Variant = Object.freeze({
 // Clamps "to" in range 0–25
 exports.clamp = (to) => (to < 0 ? 0 : to > 25 ? 25 : to);
 
+// Returns the distance between two pips (1–6)
+const pipDistance = function (from, to) {
+    const dist = Math.abs(to - from);
+    return dist <= 6 ? dist : 24 - dist;
+};
 exports.Move = (from, to) => ({ from, to });
 exports.reverseMove = (move) => ({ from: move.to, to: move.from });
 
@@ -102,12 +107,6 @@ exports.Board = () => ({
         return 0;
     },
 
-    // Returns the distance a checker travels in a move (1–6)
-    moveDistance(move) {
-        const dist = Math.abs(move.to - move.from);
-        return dist <= 6 ? dist : 24 - dist;
-    },
-
     // Validates a turn of 0–4 moves
     turnValidator(moves) {
         // Validate turn length. Players must make as many moves as possible
@@ -120,9 +119,9 @@ exports.Board = () => ({
         if (this.maxTurnLength === 1 && this.dice.length === 2) {
             // if the supplied move matches the smaller dice
             // then check if there's a possible move with the larger dice
-            if (this.moveDistance(moves[0]) === this.dice[0]) {
+            if (pipDistance(moves[0].from, moves[0].to) === this.dice[0]) {
                 for (const turn of this.possibleTurns) {
-                    if (this.moveDistance(turn[0]) === this.dice[1])
+                    if (pipDistance(turn[0].from, turn[0].to) === this.dice[1])
                         return TurnMessage.invalidLongerMove;
                 }
             }
@@ -144,5 +143,6 @@ const rollDie = () => random.die(6);
 
 exports.Player = Player;
 exports.TurnMessage = TurnMessage;
+exports.pipDistance = pipDistance;
 exports.Pip = Pip;
 exports.rollDie = rollDie;

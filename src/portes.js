@@ -1,4 +1,4 @@
-const { Board, Pip, Move, Player, clamp } = require("./gameUtil");
+const { Board, Pip, Move, Player, clamp, pipDistance } = require("./gameUtil");
 const clone = require("ramda.clone");
 const { range } = require("./util");
 
@@ -39,7 +39,7 @@ const Portes = () => ({
         if (this.bar[this.turn].size > 0) {
             if (from !== 25 && from !== 0) return false;
             if (this.pips[to].top !== this.turn && this.pips[to].size > 1) return false;
-            if (!this.dice.includes(this.turn * (to - from))) return false;
+            if (!this.dice.includes(pipDistance(from, to))) return false;
         }
         // Bearing off
         else if (to === 25 || to === 0) {
@@ -51,9 +51,9 @@ const Portes = () => ({
                 if (this.pips[i].top === this.turn || this.pips[i].bot === this.turn) return false;
             }
             // If bearing off from an non-exact number of pips
-            if (!this.dice.includes(Math.abs(from - to))) {
+            if (!this.dice.includes(pipDistance(from, to))) {
                 // Check if there's a big enough dice
-                if (this.dice[0] > Math.abs(from - to) || this.dice[1] > Math.abs(from - to)) {
+                if (this.dice[0] > pipDistance(from, to) || this.dice[1] > pipDistance(from, to)) {
                     // Range of pips in the player's home quadrant that are further away than the pip they are trying to bear off of
                     const farHomePips =
                         this.turn === Player.white ? range(19, from - 1) : range(from + 1, 6);
@@ -70,7 +70,7 @@ const Portes = () => ({
         else {
             if (from < 1 || from > 24 || to < 1 || to > 24) return false;
             if (this.pips[to].top !== this.turn && this.pips[to].size > 1) return false;
-            if (!this.dice.includes(this.turn * (to - from))) return false;
+            if (!this.dice.includes(pipDistance(from, to))) return false;
         }
 
         return true;
@@ -110,7 +110,7 @@ const Portes = () => ({
         }
 
         // Handle dice. NOTE: this will only work for 2 distinct values or 4 identical values
-        if (this.dice[0] >= Math.abs(from - to)) this.dice.shift();
+        if (this.dice[0] >= pipDistance(from, to)) this.dice.shift();
         else this.dice.pop();
     },
 

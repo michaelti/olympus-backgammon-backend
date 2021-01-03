@@ -1,4 +1,4 @@
-const { Board, Pip, Move, Player, clamp } = require("./gameUtil");
+const { Board, Pip, Move, Player, clamp, pipDistance } = require("./gameUtil");
 const clone = require("ramda.clone");
 const { range } = require("./util");
 const State = Object.freeze({ start: 1, firstAway: 2, default: 3 });
@@ -41,9 +41,9 @@ const Fevga = () => ({
                 if (this.pips[(i % 24) + 1].top === this.turn) return false;
             }
             // If bearing off from an non-exact number of pips
-            if (!this.dice.includes(Math.abs(from - to))) {
+            if (!this.dice.includes(pipDistance(from, to))) {
                 // Check if there's a big enough dice
-                if (this.dice[0] > Math.abs(from - to) || this.dice[1] > Math.abs(from - to)) {
+                if (this.dice[0] > pipDistance(from, to) || this.dice[1] > pipDistance(from, to)) {
                     // Range of pips in the player's home quadrant that are further away than the pip they are trying to bear off of
                     const farHomePips =
                         this.turn === Player.white ? range(from + 1, 18) : range(from + 1, 6);
@@ -72,10 +72,8 @@ const Fevga = () => ({
             this.pips[to].top = pipBackup; // Restore original board state
             if (owned >= 6 && this.pips[from].size > 1) return false;
 
-            // Both players move in the same direction (decreasing). The exception is when we wrap
-            // around the edge of the board, we jump by 24 (i.e. 3, 2, 1, 24, 23, 22)
-            if (to > from) to -= 24;
-            if (!this.dice.includes(from - to)) return false;
+            // Make sure one of your dice is the number of spaces you want to move
+            if (!this.dice.includes(pipDistance(from, to))) return false;
         }
 
         return true;
@@ -106,8 +104,7 @@ const Fevga = () => ({
         }
 
         // Handle dice. NOTE: this will only work for 2 distinct values or 4 identical values
-        const fevgaTo = to > from ? to - 24 : to; // For wrapping around the right edge
-        if (this.dice[0] >= from - fevgaTo) this.dice.shift();
+        if (this.dice[0] >= pipDistance(from, to)) this.dice.shift();
         else this.dice.pop();
 
         // Handle game state
