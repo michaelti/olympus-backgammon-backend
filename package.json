@@ -14,7 +14,6 @@
         "dotenv": "^8.2.0",
         "olympus-bg": "git+https://github.com/michaelti/olympus-bg.git#semver:1.0.0",
         "ramda.clone": "^0.26.1",
-        "random-js": "^2.1.0",
         "socket.io": "^2.3.0"
     },
     "devDependencies": {
