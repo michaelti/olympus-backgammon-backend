@@ -1,6 +1,7 @@
 const { randomNumeric } = require("../util.js");
 const { Step, Room } = require("../roomObj");
 const { Variant, Player } = require("olympus-bg");
+const bot = require("../bot");
 
 /* ROOM EVENT LISTENERS */
 
@@ -20,16 +21,24 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
         socket.join(roomName, () => {
             // 1. Set the current room reference on this socket
             // 2. Initialize the room object
-            // 3. Send an acknowledgment with room name back to the client
+            // 3. Add this player to the room object
+            // 4. Send an acknowledgement with room name back and player enum to the client
             socket.currentRoom = roomName;
             Object.assign(rooms[roomName], Room());
-            acknowledge({ ok: true, roomName });
+            rooms[socket.currentRoom].addPlayer(socket.id);
+            acknowledge({
+                ok: true,
+                roomName,
+                player: rooms[socket.currentRoom].players[socket.id],
+            });
 
             // In game dev mode, start a game right away
             if (process.env.GAMEDEV) {
                 rooms[roomName].initGame(Variant[process.env.GAMEDEV]);
                 rooms[roomName].startGame(Player.white);
             }
+
+            bot().join(roomName);
         });
     });
 
