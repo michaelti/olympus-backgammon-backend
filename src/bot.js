@@ -1,5 +1,5 @@
 const io = require("socket.io-client");
-const { portes, plakoto, fevga, Variant, Player } = require("olympus-bg");
+const { portes, plakoto, fevga, Variant } = require("olympus-bg");
 const clone = require("ramda.clone");
 const { Step } = require("./roomObj");
 
@@ -7,11 +7,7 @@ const think = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
 
 // Copied from frontend:
 const cloneBoard = {
-    [Variant.portes]: (boardState) => {
-        const board = { ...portes.Board(), ...clone(boardState) };
-        board.bar = { [Player.black]: board.pips[25], [Player.white]: board.pips[0] };
-        return board;
-    },
+    [Variant.portes]: (boardState) => ({ ...portes.Board(), ...clone(boardState) }),
     [Variant.plakoto]: (boardState) => ({ ...plakoto.Board(), ...clone(boardState) }),
     [Variant.fevga]: (boardState) => ({ ...fevga.Board(), ...clone(boardState) }),
 };
