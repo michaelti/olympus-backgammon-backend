@@ -36,14 +36,24 @@ const bot = () => {
                 doingMove = true;
 
                 // Todo:
-                // - Get it working with doubles
-                // - Get it working with only valid turns
                 // - Get it to play a good turn instead of a random one
                 // - Clean it up
 
                 const logicBoard = cloneBoard[roomLocal.variant](roomLocal.board);
-                const turns = logicBoard.allPossibleTurns();
-                const turn = turns[Math.floor(Math.random() * turns.length)];
+
+                logicBoard.maxTurnLength = 0;
+                logicBoard.possibleTurns = logicBoard.allPossibleTurns(true);
+                for (const turn of logicBoard.possibleTurns) {
+                    if (turn.length > logicBoard.maxTurnLength) {
+                        logicBoard.maxTurnLength = turn.length;
+                    }
+                }
+
+                const onlyValidTurns = logicBoard.possibleTurns.filter((turn) => {
+                    return logicBoard.turnValidator(turn) > 0;
+                });
+
+                const turn = onlyValidTurns[Math.floor(Math.random() * onlyValidTurns.length)];
 
                 turn.forEach(async (move, i) => {
                     await think(750 * (i + 1));
