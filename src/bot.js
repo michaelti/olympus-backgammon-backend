@@ -103,6 +103,7 @@ const bot = () => {
                 const logicBoard = cloneBoard[roomLocal.variant](roomLocal.board);
 
                 logicBoard.maxTurnLength = 0;
+                logicBoard.uniqueTurns = new Map();
                 logicBoard.possibleTurns = logicBoard.allPossibleTurns(true);
                 for (const turn of logicBoard.possibleTurns) {
                     if (turn.length > logicBoard.maxTurnLength) {
@@ -111,18 +112,9 @@ const bot = () => {
                 }
 
                 // IDEA 2: dedupe the unique turns based on their destinations
-                let uniqueTurns = new Map();
-                logicBoard.possibleTurns.forEach((turn) => {
-                    if (turn.length < 4) return;
+                // do this in allPT();
 
-                    const destinations = turn.map((move) => move.to);
-                    const sorted = destinations.sort();
-                    const string = sorted.join("");
-
-                    uniqueTurns.set(string, turn);
-                });
-
-                const uniqueTurnsArray = Array.from(uniqueTurns.values());
+                const uniqueTurnsArray = Array.from(logicBoard.uniqueTurns.values());
 
                 const onlyValidTurns = uniqueTurnsArray.filter((turn) => {
                     return logicBoard.turnValidator(turn) > 0;
