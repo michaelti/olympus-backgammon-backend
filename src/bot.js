@@ -110,14 +110,28 @@ const bot = () => {
                     }
                 }
 
-                const onlyValidTurns = logicBoard.possibleTurns.filter((turn) => {
+                // IDEA 2: dedupe the unique turns based on their destinations
+                let uniqueTurns = new Map();
+                logicBoard.possibleTurns.forEach((turn) => {
+                    if (turn.length < 4) return;
+
+                    const destinations = turn.map((move) => move.to);
+                    const sorted = destinations.sort();
+                    const string = sorted.join("");
+
+                    uniqueTurns.set(string, turn);
+                });
+
+                const uniqueTurnsArray = Array.from(uniqueTurns.values());
+
+                const onlyValidTurns = uniqueTurnsArray.filter((turn) => {
                     return logicBoard.turnValidator(turn) > 0;
                 });
 
                 const turn = pickTurn(onlyValidTurns, logicBoard);
 
                 // IDEA 1: dedupe the unique turns
-                // const strings = onlyValidTurns.map((turn) => {
+                // const strings = logicBoard.possibleTurns.map((turn) => {
                 //     const clonedBoard = clone(logicBoard);
 
                 //     turn.forEach((move) => {
