@@ -112,9 +112,11 @@ const bot = () => {
                 }
 
                 // IDEA 2: dedupe the unique turns based on their destinations
-                // do this in allPT();
-
-                const uniqueTurnsArray = Array.from(logicBoard.uniqueTurns.values());
+                // via olympus-bg
+                const uniqueTurnsArray =
+                    logicBoard.maxTurnLength === 4
+                        ? Array.from(logicBoard.uniqueTurns.values())
+                        : logicBoard.possibleTurns;
 
                 const onlyValidTurns = uniqueTurnsArray.filter((turn) => {
                     return logicBoard.turnValidator(turn) > 0;
@@ -145,7 +147,7 @@ const bot = () => {
             // Finish a turn
             if (roomLocal.board.turnValidity > 0) {
                 console.log("Bot applying turn");
-                // socket.emit("game/apply-turn");
+                socket.emit("game/apply-turn");
                 doingMove = false;
             }
         }
