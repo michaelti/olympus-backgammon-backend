@@ -12,6 +12,7 @@ const cloneBoard = {
     [Variant.fevga]: (boardState) => ({ ...fevga.Board(), ...clone(boardState) }),
 };
 
+// Returns the best turn based on a set of possible turns and the board state
 function pickTurn(turns, board) {
     const { turn } = turns.reduce(
         (bestTurn, currentTurn) => {
@@ -32,28 +33,24 @@ function pickTurn(turns, board) {
     return turn;
 }
 
+// Heuristic function to rank a board state based on how "good" it is for Player.black
+// Returns a score (higher is better)
 function rankBoard(board) {
     let rank = 0;
 
-    // -10 = very bad
-    // -5 = kinda bad
-    // 0 = neutral
-    // +5 = kinda good
-    // +10 = very good
-
-    let isEndGame = true;
     let sawBlack = false;
-
+    let isEndGame = true;
+    // The "endgame" is when there is no possibility of either player being sent to the bar
     for (let i = 25; i >= 0; i--) {
         if (board.pips[i].top === -1) sawBlack = true;
-        if (board.pips[i].top === 1 && sawBlack) {
+        else if (board.pips[i].top === 1 && sawBlack) {
             isEndGame = false;
             break;
         }
     }
 
     board.pips.forEach((pip, i) => {
-        // An open checker
+        // An open checker deducts points based on distance it could be sent back
         if (pip.top === board.turn && pip.size === 1) {
             for (let j = i - 1; j >= 0; j--) {
                 // If a white checker exists ahead
@@ -88,7 +85,6 @@ const bot = () => {
 
         // Do a starting roll
         if (roomLocal.step === Step.startingRoll && !roomLocal.dice[player]) {
-            console.log("Bot doing a starting roll");
             await think(750);
             socket.emit("room/starting-roll");
         }
@@ -97,12 +93,11 @@ const bot = () => {
         if (roomLocal.step === Step.game && roomLocal.board.turn === player) {
             // Do a move
             if (roomLocal.board.turnValidity <= 0 && !doingMove) {
-                console.log("Bot moving");
                 doingMove = true;
 
                 const logicBoard = cloneBoard[roomLocal.variant](roomLocal.board);
 
-                logicBoard.maxTurnLength = 0;
+                // logicBoard.maxTurnLength = 0;
                 logicBoard.uniqueTurns = new Map();
                 logicBoard.possibleTurns = logicBoard.allPossibleTurns(true);
                 for (const turn of logicBoard.possibleTurns) {
@@ -111,32 +106,17 @@ const bot = () => {
                     }
                 }
 
-                // IDEA 2: dedupe the unique turns based on their destinations
-                // via olympus-bg
+                // If the maxTurnLength is 4, we can use the pre-filtered uniqueTurns Map
+                // otherwise we filter down possibleTurns because it may contain invalid turns
                 const uniqueTurnsArray =
                     logicBoard.maxTurnLength === 4
                         ? Array.from(logicBoard.uniqueTurns.values())
-                        : logicBoard.possibleTurns;
+                        : logicBoard.possibleTurns.filter((turn) => {
+                              return logicBoard.turnValidator(turn) > 0;
+                          });
 
-                const onlyValidTurns = uniqueTurnsArray.filter((turn) => {
-                    return logicBoard.turnValidator(turn) > 0;
-                });
-
-                const turn = pickTurn(onlyValidTurns, logicBoard);
-
-                // IDEA 1: dedupe the unique turns
-                // const strings = logicBoard.possibleTurns.map((turn) => {
-                //     const clonedBoard = clone(logicBoard);
-
-                //     turn.forEach((move) => {
-                //         clonedBoard.doMove(move.from, move.to);
-                //     });
-
-                //     return JSON.stringify(clonedBoard.pips);
-                // });
-
-                // const uniqueTurns = new Set(strings);
-                // console.log(uniqueTurns.size);
+                // Select the best turn for the bot to choose
+                const turn = pickTurn(uniqueTurnsArray, logicBoard);
 
                 turn.forEach(async (move, i) => {
                     await think(750 * (i + 1));
@@ -146,7 +126,6 @@ const bot = () => {
 
             // Finish a turn
             if (roomLocal.board.turnValidity > 0) {
-                console.log("Bot applying turn");
                 socket.emit("game/apply-turn");
                 doingMove = false;
             }
