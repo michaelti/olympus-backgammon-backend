@@ -115,6 +115,10 @@ const bot = () => {
                               return logicBoard.turnValidator(turn) > 0;
                           });
 
+                // Clear these so we don't waste resources cloning them in pickTurn()
+                logicBoard.possibleTurns = null;
+                logicBoard.uniqueTurns = null;
+
                 // Select the best turn for the bot to choose
                 const turn = pickTurn(uniqueTurnsArray, logicBoard);
 
