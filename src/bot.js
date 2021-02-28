@@ -13,25 +13,29 @@ const cloneBoard = {
 };
 
 // Returns the best turn based on a set of possible turns and the board state
-function pickTurn(turns, board) {
-    const { turn } = turns.reduce(
-        (bestTurn, currentTurn) => {
-            const clonedBoard = clone(board);
+const pickTurn = {
+    [Variant.portes]: (turns, board) => {
+        const { turn } = turns.reduce(
+            (bestTurn, currentTurn) => {
+                const clonedBoard = clone(board);
 
-            currentTurn.forEach((move) => {
-                clonedBoard.doMove(move.from, move.to);
-            });
+                currentTurn.forEach((move) => {
+                    clonedBoard.doMove(move.from, move.to);
+                });
 
-            const rank = rankBoard(clonedBoard);
+                const rank = rankBoard(clonedBoard);
 
-            if (rank > bestTurn.rank) return { turn: currentTurn, rank };
-            return bestTurn;
-        },
-        { turn: [], rank: -Infinity }
-    );
+                if (rank > bestTurn.rank) return { turn: currentTurn, rank };
+                return bestTurn;
+            },
+            { turn: [], rank: -Infinity }
+        );
 
-    return turn;
-}
+        return turn;
+    },
+    [Variant.plakoto]: (turns) => turns[Math.floor(Math.random() * turns.length)],
+    [Variant.fevga]: (turns) => turns[Math.floor(Math.random() * turns.length)],
+};
 
 // Heuristic function to rank a board state based on how "good" it is for Player.black
 // Returns a score (higher is better)
@@ -74,13 +78,41 @@ function rankBoard(board) {
     return rank;
 }
 
-const bot = () => {
-    const socket = io(`http://localhost:3001`);
+function Bot(roomName) {
+    let socket = io("http://localhost:" + process.env.PORT);
     let roomLocal = {};
     let player;
     let doingMove = false;
+    let disconnectTimer;
+
+    // Function to disconnect the bot after a period of inactivity
+    const startDisconnectTimer = () => {
+        const milliseconds = 300000; // 5 minutes
+
+        clearTimeout(disconnectTimer);
+        disconnectTimer = setTimeout(disconnect, milliseconds);
+
+        function disconnect() {
+            socket.disconnect();
+            socket = null;
+        }
+    };
+
+    startDisconnectTimer();
+
+    // Join the room from the constructor
+    socket.emit("event/join-room", roomName, (acknowledgement) => {
+        if (acknowledgement.ok) {
+            console.log(`Bot ${socket.id} joined room ${roomName}`);
+            player = acknowledgement.player;
+        } else {
+            console.log(`Bot ${socket.id} failed to join room ${roomName}`);
+        }
+    });
 
     socket.on("room/update-room", async (room) => {
+        startDisconnectTimer();
+
         roomLocal = { ...roomLocal, ...room };
 
         // Do a starting roll
@@ -120,7 +152,7 @@ const bot = () => {
                 logicBoard.uniqueTurns = null;
 
                 // Select the best turn for the bot to choose
-                const turn = pickTurn(uniqueTurnsArray, logicBoard);
+                const turn = pickTurn[roomLocal.variant](uniqueTurnsArray, logicBoard);
 
                 turn.forEach(async (move, i) => {
                     await think(750 * (i + 1));
@@ -135,20 +167,6 @@ const bot = () => {
             }
         }
     });
+}
 
-    return {
-        join: (roomName) => {
-            // Join the room
-            socket.emit("event/join-room", roomName, (acknowledgement) => {
-                if (acknowledgement.ok) {
-                    console.log(`Bot ${socket.id} joined room ${roomName}`);
-                    player = acknowledgement.player;
-                } else {
-                    console.log(`Bot ${socket.id} failed to join room ${roomName}`);
-                }
-            });
-        },
-    };
-};
-
-module.exports = bot;
+module.exports = Bot;

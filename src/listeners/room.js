@@ -1,13 +1,13 @@
 const { randomNumeric } = require("../util.js");
 const { Step, Room } = require("../roomObj");
 const { Variant, Player } = require("olympus-bg");
-const bot = require("../bot");
+const Bot = require("../bot");
 
 /* ROOM EVENT LISTENERS */
 
 module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
     // Room event: start room
-    socket.on("event/start-room", (acknowledge) => {
+    socket.on("event/start-room", (options, acknowledge) => {
         // Generate a random, unique room name string
         let roomName = randomNumeric(4);
         while (roomName in rooms) roomName = randomNumeric(5);
@@ -38,7 +38,7 @@ module.exports = function (socket, io, rooms = io.sockets.adapter.rooms) {
                 rooms[roomName].startGame(Player.white);
             }
 
-            bot().join(roomName);
+            if (options.withBot) new Bot(roomName);
         });
     });
 
